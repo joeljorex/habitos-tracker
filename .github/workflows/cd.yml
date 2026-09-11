@@ -1,0 +1,263 @@
+# Despliegue continuo — spec 003 (specs/003-infraestructura-cicd/contracts/pipelines.md §2).
+#
+# Panel web:
+#   CI completo → Construir paquete del panel → Smoke tests (staging) → Aprobación de producción
+#   → Publicar en GitHub Pages → Verificar producción
+# La API (Railway) y la app (AAB + Firebase) se activan solas cuando existen su código y sus
+# secretos; mientras tanto se omiten sin marcar falla.
+#
+# Rollback: en Actions → CD, abrir la ejecución del último commit bueno de main y pulsar
+# "Re-run all jobs", o hacer `git revert` del commit defectuoso y merge a main.
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Primera etapa: la misma CI de los PRs. Si falla, ningún job posterior se ejecuta.
+  ci:
+    name: CI completo
+    uses: ./.github/workflows/ci.yml
+
+  construir-web:
+    name: Construir paquete del panel
+    needs: ci
+    if: needs.ci.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Genera el artefacto `github-pages` (artifact.tar con el contenido de web/). Es el mismo
+      # paquete que se prueba en staging y que después se publica.
+      - name: Empaquetar web/
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: web
+
+  smoke-staging:
+    name: Smoke tests (staging)
+    needs: [ci, construir-web]
+    if: needs.ci.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar Chromium de Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Descargar el paquete a publicar
+        uses: actions/download-artifact@v8
+        with:
+          name: github-pages
+          path: paquete
+
+      - name: Extraer el paquete en _site/
+        run: |
+          mkdir -p _site
+          tar -xf paquete/artifact.tar -C _site
+
+      # Staging efímero: Pages admite un solo sitio por repositorio, así que scripts/serve.mjs
+      # sirve _site/ dentro del runner y Playwright ejecuta solo las pruebas @smoke.
+      - name: Smoke tests contra el paquete
+        run: SERVE_DIR=_site npm run test:smoke
+
+  aprobacion-produccion:
+    name: Aprobación de producción
+    needs: [ci, smoke-staging]
+    if: needs.ci.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    # production exige la aprobación de un revisor (infra/terraform/github.tf): el job espera en
+    # "Review deployments" hasta que alguien apruebe o rechace.
+    environment: production
+    steps:
+      - name: Registrar la versión aprobada
+        run: |
+          echo "Se publicará el commit ${GITHUB_SHA} de ${GITHUB_REF_NAME}."
+          {
+            echo "### Aprobado para producción"
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Rama: \`${GITHUB_REF_NAME}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  desplegar-produccion:
+    name: Publicar en GitHub Pages
+    needs: [ci, aprobacion-produccion]
+    if: needs.ci.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    # Un despliegue en curso nunca se cancela a medias; uno nuevo espera su turno.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      # Requiere GitHub Pages habilitado con la fuente "GitHub Actions"
+      # (Settings → Pages → Build and deployment); ver quickstart.md §3.
+      - name: Publicar el paquete
+        id: despliegue
+        uses: actions/deploy-pages@v5
+
+  verificar-produccion:
+    name: Verificar producción
+    needs: [ci, desplegar-produccion]
+    if: needs.ci.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar Chromium de Playwright
+        run: npx playwright install --with-deps chromium
+
+      # Con BASE_URL definida, playwright.config.js no levanta el servidor local y prueba la URL
+      # pública recién publicada.
+      - name: Smoke tests contra la URL pública
+        run: npm run test:smoke
+        env:
+          BASE_URL: ${{ needs.desplegar-produccion.outputs.page_url }}
+
+  desplegar-api:
+    name: Desplegar API (Railway)
+    needs: ci
+    if: needs.ci.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v7
+
+      # El contexto `secrets` no se puede usar en el `if:` de un job: el secreto se pasa a env y
+      # se comprueba en este paso. Si falta algo, queda un aviso y el job termina en verde.
+      - name: Comprobar api/Dockerfile y RAILWAY_TOKEN
+        id: requisitos
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ ! -f api/Dockerfile ]; then
+            motivo="aún no existe api/Dockerfile"
+          elif [ -z "${RAILWAY_TOKEN}" ]; then
+            motivo="falta el secreto RAILWAY_TOKEN (token de proyecto de Railway)"
+          else
+            echo "desplegar=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "desplegar=false" >> "$GITHUB_OUTPUT"
+          echo "::warning title=Despliegue de la API omitido::${motivo}"
+          echo "**Despliegue de la API omitido**: ${motivo}." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Instalar Railway CLI
+        if: steps.requisitos.outputs.desplegar == 'true'
+        run: npm install --global @railway/cli@5
+
+      # Migraciones: se ejecutan como "pre-deploy command" del servicio en Railway
+      # (`php artisan migrate --force`), dentro de su red privada y con sus variables, después
+      # del build y antes de que la versión nueva reciba tráfico. Si fallan, el despliegue no
+      # avanza y sigue activa la versión anterior. El health check (/api/health) también lo hace
+      # Railway. En CI, `railway up` espera ese veredicto: sale con 0 solo si el despliegue queda
+      # SUCCESS y con 1 si queda FAILED o CRASHED. Configuración: infra/terraform/README.md.
+      #
+      # Se sube el repositorio desde la raíz; la raíz del servicio (/api) hace que Railway
+      # construya api/Dockerfile.
+      - name: Desplegar con railway up
+        if: steps.requisitos.outputs.desplegar == 'true'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up --ci --service api --message "CD ${GITHUB_SHA::7}"
+          echo "**API desplegada en Railway** (commit \`${GITHUB_SHA::7}\`)." >> "$GITHUB_STEP_SUMMARY"
+
+  construir-app:
+    name: Construir app (AAB)
+    needs: ci
+    if: needs.ci.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      # Un gradlew commiteado desde Windows puede llegar sin el bit de ejecución.
+      - name: Permiso de ejecución para gradlew
+        run: chmod +x gradlew
+
+      - name: Construir AAB de release
+        run: ./gradlew bundleRelease
+
+      - name: Subir AAB como artefacto
+        uses: actions/upload-artifact@v7
+        with:
+          name: app-release-aab
+          path: app/**/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+
+      - name: Comprobar secretos de Firebase
+        id: firebase
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+        run: |
+          if [ -n "${FIREBASE_APP_ID}" ] && [ -n "${FIREBASE_CREDENTIALS}" ]; then
+            echo "distribuir=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "distribuir=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Distribución de la app omitida::faltan FIREBASE_APP_ID o FIREBASE_CREDENTIALS"
+            echo "**Distribución con Firebase omitida**: faltan los secretos \`FIREBASE_APP_ID\` o \`FIREBASE_CREDENTIALS\`. El AAB queda disponible como artefacto \`app-release-aab\`." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Preparar Node para Firebase CLI
+        if: steps.firebase.outputs.distribuir == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      # Firebase App Distribution solo acepta AAB si la app de Firebase está vinculada a Google
+      # Play y publicada en algún track (p. ej. prueba interna); sin Play, la alternativa es
+      # distribuir un APK (assembleRelease).
+      - name: Distribuir con Firebase App Distribution
+        if: steps.firebase.outputs.distribuir == 'true'
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+        run: |
+          credenciales="${RUNNER_TEMP}/firebase-credenciales.json"
+          trap 'rm -f "${credenciales}"' EXIT
+          printf '%s' "${FIREBASE_CREDENTIALS}" > "${credenciales}"
+          aab=$(find . -path '*/build/outputs/bundle/release/*.aab' -print -quit)
+          GOOGLE_APPLICATION_CREDENTIALS="${credenciales}" npx --yes firebase-tools@15 \
+            appdistribution:distribute "${aab}" \
+            --app "${FIREBASE_APP_ID}" \
+            --release-notes "Commit ${GITHUB_SHA::7} de main"

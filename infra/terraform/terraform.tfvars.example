@@ -1,0 +1,30 @@
+# Copia este archivo como terraform.tfvars (ignorado por git) y ajusta los valores.
+#   bash:       cp terraform.tfvars.example terraform.tfvars
+#   PowerShell: Copy-Item terraform.tfvars.example terraform.tfvars
+#
+# Las credenciales NO van aquí: se leen de las variables de entorno GITHUB_TOKEN y
+# RAILWAY_TOKEN (ver README.md).
+
+github_owner = "joeljorex"
+repositorio  = "habitos-tracker"
+
+ramas_protegidas        = ["main", "develop"]
+aprobaciones_requeridas = 1
+
+# Usuarios de GitHub que aprueban los despliegues a production (máximo 6).
+revisores_produccion = ["joeljorex"]
+
+# Railway queda desactivado hasta que exista la API (api/Dockerfile).
+habilitar_railway = false
+railway_proyecto  = "habitos-tracker-api"
+
+# checks_requeridos toma por defecto los 6 checks del contrato
+# (specs/003-infraestructura-cicd/contracts/pipelines.md §1). Solo se redefine si cambia ci.yml:
+# checks_requeridos = [
+#   "Detectar componentes",
+#   "Web - unit + e2e (Playwright)",
+#   "API (Laravel) - Tests",
+#   "App (Android) - Build & Unit Tests",
+#   "IaC - Terraform validate",
+#   "SDD - Specs completas",
+# ]
