@@ -1,4 +1,4 @@
-// Orquestación de la interfaz del panel (specs 001 y 002).
+// Orquestación de la interfaz del panel (specs 001, 002 y 004).
 //
 // Solo presenta y conecta eventos: las reglas viven en dominio/, la persistencia en almacen.js,
 // la autenticación simulada en auth.js y la guía en tour/.
@@ -11,6 +11,7 @@ import {
   marcarHecho,
   ordenarPorCreacion,
 } from './dominio/habitos.js';
+import { calcularRachas } from './dominio/rachas.js';
 import { guardarHabitos, guardarRegistros, leerHabitos, leerRegistros } from './almacen.js';
 import { cerrarSesion, iniciarSesion, sesionActual } from './auth.js';
 import { cerrarTour, iniciarTour } from './tour/tour.js';
@@ -41,6 +42,7 @@ const ui = {
 const FORMATO_FECHA = new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
 const textoDiasCumplidos = (n) => (n === 1 ? '1 día cumplido' : `${n} días cumplidos`);
+const conDias = (n) => (n === 1 ? '1 día' : `${n} días`);
 const capitalizar = (texto) => texto.charAt(0).toUpperCase() + texto.slice(1);
 
 /** Crea un elemento con atributos y texto seguro (los datos del usuario nunca pasan por innerHTML). */
@@ -136,6 +138,27 @@ ui.habitName.addEventListener('input', () => {
   if (ui.habitError.textContent) limpiarErrorHabito();
 });
 
+/** Insignias "Racha" y "Mejor" (spec 004). La racha del primer hábito es el ancla de la guía. */
+function crearRachas(habito, registros, hoy, esPrimero) {
+  const fechas = registros.filter((registro) => registro.habitoId === habito.id).map((registro) => registro.fecha);
+  const { actual, maxima } = calcularRachas(fechas, hoy);
+  return crear(
+    'p',
+    { class: 'habito-rachas' },
+    crear(
+      'span',
+      {
+        class: actual > 0 ? 'insignia insignia-racha insignia-activa' : 'insignia insignia-racha',
+        'data-testid': 'habit-streak-current',
+        'data-tour': esPrimero ? 'racha' : null,
+      },
+      `Racha: ${conDias(actual)}`,
+    ),
+    crear('span', { class: 'solo-lectores' }, ', '),
+    crear('span', { class: 'insignia insignia-mejor', 'data-testid': 'habit-streak-max' }, `Mejor: ${conDias(maxima)}`),
+  );
+}
+
 function crearItem(habito, registros, hoy, esPrimero) {
   const hecho = estaHechoHoy(registros, habito.id, hoy);
   return crear(
@@ -150,6 +173,7 @@ function crearItem(habito, registros, hoy, esPrimero) {
         { class: 'habito-dias', 'data-testid': 'habit-days' },
         textoDiasCumplidos(diasCumplidos(registros, habito.id)),
       ),
+      crearRachas(habito, registros, hoy, esPrimero),
     ),
     crear(
       'div',
@@ -181,7 +205,10 @@ function crearItem(habito, registros, hoy, esPrimero) {
   );
 }
 
-/** Vuelve a pintar la lista. "Hoy" se recalcula siempre: un cambio de día se refleja al repintar. */
+/**
+ * Vuelve a pintar la lista (días cumplidos y rachas incluidos). "Hoy" se recalcula siempre:
+ * un cambio de día se refleja al repintar.
+ */
 function renderizar() {
   const ahora = new Date();
   const hoy = fechaLocal(ahora);
