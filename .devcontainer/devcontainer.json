@@ -1,0 +1,45 @@
+{
+  "name": "Hábitos Tracker",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:5-24-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/php:1": {
+      "version": "8.3",
+      "installComposer": true
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12",
+      "installTools": false
+    },
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "1.16.2"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:4": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/node/.local/bin"
+  },
+  "forwardPorts": [4173, 8000],
+  "portsAttributes": {
+    "4173": {
+      "label": "Panel web",
+      "onAutoForward": "notify"
+    },
+    "8000": {
+      "label": "API Laravel",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-playwright.playwright",
+        "hashicorp.terraform",
+        "github.vscode-github-actions",
+        "bmewburn.vscode-intelephense-client",
+        "bierner.markdown-mermaid"
+      ]
+    }
+  }
+}
