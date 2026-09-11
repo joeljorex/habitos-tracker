@@ -57,3 +57,12 @@ export function agregarPaso(paso, { antesDe } = {}) {
   if (indice === -1) PASOS.push(paso);
   else PASOS.splice(indice, 0, paso);
 }
+
+// Rachas (spec 004): explica la racha justo antes de «¿Necesitas ayuda?».
+agregarPaso({
+  id: 'racha',
+  elemento: '[data-tour="racha"]',
+  titulo: 'Tu racha',
+  descripcion: 'La racha cuenta los días seguidos que cumples el hábito. Si saltas un día vuelve a empezar, pero tu mejor racha se conserva.',
+  alternativa: { elemento: '[data-tour="lista"]', descripcion: 'Cada hábito mostrará su racha: los días seguidos que lo cumples y tu mejor marca.' },
+}, { antesDe: 'ver-guia' });

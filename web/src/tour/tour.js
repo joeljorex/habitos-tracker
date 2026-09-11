@@ -88,6 +88,12 @@ export function iniciarTour({ forzar = false } = {}) {
       globo.closeButton.setAttribute('aria-label', 'Cerrar guía');
       globo.closeButton.setAttribute('title', 'Cerrar guía');
     },
+    // driver.js enfoca el primer botón del globo, que es la X (un Enter cerraría la guía). Al
+    // terminar de resaltar cada paso, el foco pasa a "Siguiente"/"Listo" si sigue en el globo.
+    onHighlighted: (_elemento, _paso, { state }) => {
+      const globo = state.popover;
+      if (globo?.wrapper.contains(document.activeElement)) globo.nextButton.focus();
+    },
     steps: pasos.map((paso) => ({
       element: paso.elemento,
       popover: { title: paso.titulo, description: paso.descripcion },
