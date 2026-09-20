@@ -1,0 +1,38 @@
+{
+  "proyecto": "habitos-tracker-jhm",
+  "total": 4,
+  "hallazgos": [
+    {
+      "tipo": "BUG",
+      "severidad": "MAJOR",
+      "regla": "javascript:S7727",
+      "archivo": "web/src/almacen.js",
+      "linea": 67,
+      "mensaje": "Do not pass function `esValido` directly to `.filter(…)`."
+    },
+    {
+      "tipo": "VULNERABILITY",
+      "severidad": "MAJOR",
+      "regla": "javascript:S2068",
+      "archivo": "web/src/auth.js",
+      "linea": 5,
+      "mensaje": "Review this potentially hard-coded password."
+    },
+    {
+      "tipo": "CODE_SMELL",
+      "severidad": "MAJOR",
+      "regla": "javascript:S3358",
+      "archivo": "web/src/dominio/habitos.js",
+      "linea": 83,
+      "mensaje": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "tipo": "VULNERABILITY",
+      "severidad": "MAJOR",
+      "regla": "javascript:S2245",
+      "archivo": "web/src/dominio/habitos.js",
+      "linea": 92,
+      "mensaje": "Make sure that using this pseudorandom number generator is safe here."
+    }
+  ]
+}

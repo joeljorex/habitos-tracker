@@ -1,0 +1,18 @@
+# Finales de línea consistentes entre Windows y Codespaces (Linux)
+* text=auto eol=lf
+
+# Scripts de Windows con CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.docx binary
+*.jar binary
+*.keystore binary

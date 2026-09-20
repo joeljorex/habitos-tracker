@@ -21,6 +21,28 @@ api/public/hot
 api/public/storage
 api/.phpunit.result.cache
 
+# --- Panel web / Node (web/, tests/) ---
+node_modules/
+playwright-report/
+test-results/
+blob-report/
+coverage/
+
+# --- Terraform (infra/terraform/) ---
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+crash.log
+
+# --- Agentes de IA (Spec Kit / Claude Code) ---
+# Las skills (.claude/skills/) sí se versionan; la configuración local no.
+.claude/settings.local.json
+
+# --- Python (scripts de Spec Kit) ---
+__pycache__/
+*.pyc
+
 # --- General ---
 .DS_Store
 *.log

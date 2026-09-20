@@ -1,0 +1,743 @@
+/* Estilos del panel de Hábitos Tracker (spec 001 T005; guía de la spec 002).
+   Mobile-first, tipografía del sistema, un color de acento con contraste AA y foco visible. */
+
+:root {
+  color-scheme: light;
+  --fondo: #f3f6f5;
+  --superficie: #ffffff;
+  --texto: #16222c;
+  --texto-suave: #4f5d69;        /* 6,6:1 sobre blanco */
+  --borde: #dce3e1;
+  --borde-fuerte: #b9c5c1;
+  --acento: #0f766e;             /* 5,5:1 sobre blanco (AA texto normal) */
+  --acento-oscuro: #0b5c56;
+  --acento-suave: #e3f3ef;
+  --exito: #05603a;              /* 7,4:1 sobre --exito-suave */
+  --exito-suave: #ecfdf3;
+  --exito-borde: #a6e9c3;
+  --error: #b42318;              /* 6,3:1 sobre blanco */
+  --error-suave: #fef3f2;
+  --error-borde: #fecdca;
+  --radio: 14px;
+  --radio-chico: 10px;
+  --sombra: 0 1px 2px rgb(16 24 40 / 0.05), 0 1px 3px rgb(16 24 40 / 0.07);
+  --sombra-alta: 0 16px 40px rgb(16 24 40 / 0.18);
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --icono-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--fuente);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--texto);
+  background: linear-gradient(180deg, #e2f1ed 0, var(--fondo) 320px) no-repeat, var(--fondo);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* ─── Foco visible ─────────────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* Encabezados que reciben el foco por código (no son controles). */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* ─── Estructura ───────────────────────────────────────────────────────────────── */
+
+.contenedor {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+.solo-lectores {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.aviso {
+  padding: 12px 16px;
+  background: var(--error-suave);
+  border: 1px solid var(--error-borde);
+  border-radius: var(--radio-chico);
+}
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.titulo {
+  font-size: 1.625rem;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--texto);
+}
+
+.marca-logo {
+  display: inline-block;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--acento) var(--icono-check) center / 18px no-repeat;
+  box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.12);
+}
+
+/* ─── Formularios ──────────────────────────────────────────────────────────────── */
+
+label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  font: inherit;
+  color: inherit;
+  background: #fff;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-chico);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+input::placeholder {
+  color: #6a7784;
+}
+
+input:hover {
+  border-color: #93a29d;
+}
+
+input:focus-visible {
+  outline-offset: 1px;
+  border-color: var(--acento);
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+input[aria-invalid="true"]:focus-visible {
+  outline-color: var(--error);
+}
+
+.mensaje-error {
+  color: var(--error);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+/* Vacío no ocupa espacio, pero sigue en el árbol de accesibilidad para anunciarse. */
+.mensaje-error:not(:empty) {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: var(--error-suave);
+  border: 1px solid var(--error-borde);
+  border-radius: var(--radio-chico);
+}
+
+.mensaje-error:not(:empty)::before {
+  content: "";
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1 5h2v7h-2zm0 9h2v2h-2z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1 5h2v7h-2zm0 9h2v2h-2z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ─── Botones ──────────────────────────────────────────────────────────────────── */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 18px;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: var(--radio-chico);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.boton-primario {
+  background: var(--acento);
+  color: #fff;
+}
+
+.boton-primario:hover {
+  background: var(--acento-oscuro);
+}
+
+.boton-bloque {
+  width: 100%;
+}
+
+.boton-secundario {
+  background: var(--superficie);
+  color: var(--acento);
+  border-color: #aed3cb;
+}
+
+.boton-secundario:hover {
+  background: var(--acento-suave);
+}
+
+.boton-texto {
+  background: transparent;
+  color: var(--texto-suave);
+}
+
+.boton-texto:hover {
+  color: var(--texto);
+  background: rgb(22 34 44 / 0.06);
+}
+
+.boton-chico {
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 0.9375rem;
+}
+
+/* ─── Pantalla de acceso ───────────────────────────────────────────────────────── */
+
+.vista-acceso {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 420px;
+  margin: 5vh auto 0;
+}
+
+.marca-grande {
+  align-self: center;
+  font-size: 1.25rem;
+}
+
+.marca-grande .marca-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background-size: 24px;
+}
+
+.tarjeta-acceso {
+  padding: 28px 22px 26px;
+}
+
+.subtitulo {
+  margin: 6px 0 22px;
+  color: var(--texto-suave);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+}
+
+.formulario > * + * {
+  margin-top: 16px;
+}
+
+.formulario > .mensaje-error:empty {
+  margin-top: 0;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nota-demo {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+.dato {
+  font-family: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--texto);
+  background: rgb(15 118 110 / 0.09);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+/* ─── Panel ────────────────────────────────────────────────────────────────────── */
+
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--borde);
+}
+
+.encabezado-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.usuario {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 5px 12px 5px 8px;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario::before {
+  content: "";
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--acento-suave) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230f766e'%3E%3Ccircle cx='12' cy='9' r='4'/%3E%3Cpath d='M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5z'/%3E%3C/svg%3E") center / 14px no-repeat;
+}
+
+.titulo-panel {
+  margin-bottom: 20px;
+}
+
+.fecha-hoy {
+  margin-top: 4px;
+  color: var(--texto-suave);
+}
+
+.formulario-habito {
+  padding: 18px;
+  margin-bottom: 28px;
+}
+
+.formulario-habito label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.fila-campo {
+  display: flex;
+  gap: 10px;
+}
+
+.fila-campo input {
+  flex: 1;
+  min-width: 0;
+}
+
+.fila-campo .boton {
+  flex: none;
+}
+
+.formulario-habito .mensaje-error:not(:empty) {
+  margin-top: 12px;
+}
+
+.seccion-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.seccion-cabecera h2 {
+  font-size: 1.125rem;
+  letter-spacing: -0.01em;
+}
+
+.resumen {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--acento);
+}
+
+.lista-habitos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ─── Tarjeta de hábito ────────────────────────────────────────────────────────── */
+
+.habito {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 16px;
+  padding: 16px 18px;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.habito-hecho {
+  border-color: var(--exito-borde);
+  background: linear-gradient(100deg, var(--exito-suave) 0, var(--superficie) 70%);
+}
+
+.habito-info {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.habito-nombre {
+  font-size: 1.0625rem;
+  font-weight: 650;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.habito-dias {
+  margin-top: 2px;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+.habito-acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.boton-marcar {
+  min-width: 136px;
+  background: var(--acento);
+  color: #fff;
+}
+
+.boton-marcar:hover {
+  background: var(--acento-oscuro);
+}
+
+.boton-marcar:disabled {
+  background: var(--exito-suave);
+  color: var(--exito);
+  border-color: var(--exito-borde);
+  cursor: default;
+}
+
+.boton-eliminar {
+  background: transparent;
+  color: var(--texto-suave);
+  border-color: var(--borde);
+}
+
+.boton-eliminar:hover {
+  color: var(--error);
+  background: var(--error-suave);
+  border-color: var(--error-borde);
+}
+
+/* ─── Rachas (spec 004) ────────────────────────────────────────────────────────── */
+
+.habito-rachas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.insignia {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px 3px 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--texto-suave);          /* 6,2:1 sobre #eef2f1 */
+  background: #eef2f1;
+  border-radius: 999px;
+}
+
+.insignia::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: var(--icono) center / contain no-repeat;
+  mask: var(--icono) center / contain no-repeat;
+}
+
+.insignia-racha {
+  --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2c.8 3.2-.6 5.1-2.1 6.9C8.4 10.7 7 12.5 7 15a5 5 0 0 0 10 0c0-2.3-1.1-4.2-2.5-5.7-.1 1.6-.8 2.8-1.9 3.4.4-3.1-.1-6.3-.6-10.7z'/%3E%3C/svg%3E");
+}
+
+/* Racha viva: tono cálido (7:1 sobre su fondo). */
+.insignia-racha.insignia-activa {
+  color: #9a3412;
+  background: #ffedd5;
+}
+
+.insignia-mejor {
+  --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z'/%3E%3C/svg%3E");
+  color: var(--acento-oscuro);        /* 6,8:1 sobre --acento-suave */
+  background: var(--acento-suave);
+}
+
+/* ─── Estado vacío ─────────────────────────────────────────────────────────────── */
+
+.estado-vacio {
+  padding: 36px 20px 32px;
+  text-align: center;
+  color: var(--texto-suave);
+  background: rgb(255 255 255 / 0.7);
+  border: 1.5px dashed var(--borde-fuerte);
+  border-radius: var(--radio);
+}
+
+.estado-vacio::before {
+  content: "";
+  display: block;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--acento-suave) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20v-8'/%3E%3Cpath d='M12 12c0-3.5-2.5-6-7-6 0 3.5 2.5 6 7 6z'/%3E%3Cpath d='M12 14c0-3.9 2.7-7 7.5-7 0 3.9-2.7 7-7.5 7z'/%3E%3C/svg%3E") center / 28px no-repeat;
+}
+
+/* ─── Guía (driver.js, popoverClass "guia-habitos") ────────────────────────────── */
+
+.driver-popover.guia-habitos {
+  min-width: 260px;
+  max-width: min(330px, calc(100vw - 32px));
+  padding: 18px 18px 16px;
+  font-family: var(--fuente);
+  color: var(--texto);
+  border-radius: 14px;
+  box-shadow: var(--sombra-alta);
+}
+
+.driver-popover.guia-habitos .driver-popover-title {
+  padding-right: 32px;
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.driver-popover.guia-habitos .driver-popover-description {
+  font-size: 0.9375rem;
+  color: var(--texto-suave);
+}
+
+.driver-popover.guia-habitos .driver-popover-close-btn {
+  top: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  font-size: 22px;
+  line-height: 34px;
+  color: #6a7784;
+  border-radius: 8px;
+}
+
+.driver-popover.guia-habitos .driver-popover-close-btn:hover,
+.driver-popover.guia-habitos .driver-popover-close-btn:focus-visible {
+  color: var(--texto);
+  background: #eef2f1;
+}
+
+.driver-popover.guia-habitos .driver-popover-footer {
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.driver-popover.guia-habitos .driver-popover-progress-text {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+.driver-popover.guia-habitos .driver-popover-footer-btn {
+  min-height: 36px;
+  padding: 8px 14px;
+  font: 600 0.875rem/1.2 var(--fuente);
+  color: var(--texto);
+  text-shadow: none;
+  background: #fff;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: 9px;
+}
+
+.driver-popover.guia-habitos .driver-popover-footer-btn:hover {
+  background: #f1f5f4;
+}
+
+.driver-popover.guia-habitos .driver-popover-next-btn {
+  color: #fff;
+  background: var(--acento);
+  border-color: var(--acento);
+}
+
+.driver-popover.guia-habitos .driver-popover-next-btn:hover,
+.driver-popover.guia-habitos .driver-popover-next-btn:focus {
+  background: var(--acento-oscuro);
+}
+
+.driver-popover.guia-habitos .driver-popover-navigation-btns button + button {
+  margin-left: 8px;
+}
+
+.driver-popover.guia-habitos .driver-popover-footer-btn:focus-visible,
+.driver-popover.guia-habitos .driver-popover-close-btn:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* ─── Pantallas chicas, medianas y grandes ─────────────────────────────────────── */
+
+@media (max-width: 639px) {
+  /* Encabezado en dos filas: marca + "Ver guía" / correo + "Cerrar sesión".
+     El orden del DOM (y del foco) no cambia: "Ver guía" sigue antes que "Cerrar sesión". */
+  .encabezado {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "marca guia"
+      "usuario salir";
+    align-items: center;
+    gap: 12px 8px;
+  }
+
+  .encabezado-acciones {
+    display: contents;
+  }
+
+  .encabezado .marca {
+    grid-area: marca;
+  }
+
+  .encabezado .usuario {
+    grid-area: usuario;
+    justify-self: start;
+  }
+
+  .encabezado .boton-guia {
+    grid-area: guia;
+    justify-self: end;
+  }
+
+  .encabezado .boton-salir {
+    grid-area: salir;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 519px) {
+  .habito-acciones {
+    width: 100%;
+  }
+
+  .boton-marcar {
+    flex: 1;
+  }
+}
+
+@media (min-width: 640px) {
+  .contenedor {
+    padding: 36px 24px 64px;
+  }
+
+  .tarjeta-acceso {
+    padding: 32px 30px 30px;
+  }
+
+  .formulario-habito {
+    padding: 20px 22px;
+  }
+
+  .titulo {
+    font-size: 1.875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

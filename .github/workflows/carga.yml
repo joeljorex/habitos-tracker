@@ -1,0 +1,68 @@
+# Pruebas de carga con k6 (Actividad 1.2).
+#
+# En cada PR corre la prueba de humo (6 usuarios virtuales, 10 s) para que ningún cambio meta una
+# regresión de rendimiento. Las pruebas completas de cada integrante corren en main y a mano.
+# El objetivo de servicio es el mismo en los tres casos: p95 por debajo de 5 s y menos de 1 % de
+# peticiones con error.
+name: Carga (k6)
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - 'web/**'
+      - 'tests/carga/**'
+      - 'scripts/carga.mjs'
+      - 'scripts/serve.mjs'
+      - '.github/workflows/carga.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      objetivo:
+        description: 'URL contra la que correr (vacío = panel levantado en el runner)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  carga:
+    name: Panel web - k6
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Instalar k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Prueba de humo (6 VUs, 10 s)
+        env:
+          BASE_URL: ${{ inputs.objetivo }}
+        run: node scripts/carga.mjs tests/carga/smoke.js
+
+      - name: Prueba completa de JAI (10 VUs)
+        if: github.event_name != 'pull_request'
+        env:
+          BASE_URL: ${{ inputs.objetivo }}
+        run: node scripts/carga.mjs tests/carga/jai-prueba.js
+
+      - name: Prueba completa de JHM (12 VUs)
+        if: github.event_name != 'pull_request'
+        env:
+          BASE_URL: ${{ inputs.objetivo }}
+        run: node scripts/carga.mjs tests/carga/jhm-prueba.js
+
+      - name: Publicar resultados como artefacto
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: resultados-carga
+          path: tests/carga/resultados/
+          if-no-files-found: ignore
+          retention-days: 30

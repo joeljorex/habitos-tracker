@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Panel web de Hábitos Tracker: registra tus hábitos diarios y mantén tu racha.">
+    <meta name="theme-color" content="#0f766e">
+    <title>Hábitos Tracker</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230f766e'/%3E%3Cpath d='M9.5 16.5l4.5 4.5 8.5-9' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <!-- Rutas relativas: el sitio se publica bajo /habitos-tracker/ en GitHub Pages. -->
+    <link rel="stylesheet" href="vendor/driver.js/driver.css">
+    <link rel="stylesheet" href="css/estilos.css">
+    <script src="vendor/driver.js/driver.js.iife.js" defer></script>
+    <script type="module" src="src/app.js"></script>
+  </head>
+  <body>
+    <main class="contenedor">
+      <noscript><p class="aviso">Activa JavaScript para usar el panel de hábitos.</p></noscript>
+
+      <!-- Pantalla de acceso -->
+      <section id="vista-acceso" class="vista vista-acceso" aria-labelledby="titulo-acceso" hidden>
+        <p class="marca marca-grande"><span class="marca-logo" aria-hidden="true"></span>Hábitos Tracker</p>
+        <div class="tarjeta tarjeta-acceso">
+          <h1 id="titulo-acceso" class="titulo">Inicia sesión</h1>
+          <p class="subtitulo">Registra tus hábitos diarios y mantén tu racha.</p>
+          <form class="formulario" data-testid="login-form" novalidate>
+            <div class="campo">
+              <label for="login-email">Correo</label>
+              <input id="login-email" name="email" type="email" data-testid="login-email"
+                     autocomplete="username" inputmode="email" spellcheck="false" required>
+            </div>
+            <div class="campo">
+              <label for="login-password">Contraseña</label>
+              <input id="login-password" name="password" type="password" data-testid="login-password"
+                     autocomplete="current-password" required>
+            </div>
+            <p id="login-error" class="mensaje-error" data-testid="login-error" role="alert"></p>
+            <button type="submit" class="boton boton-primario boton-bloque" data-testid="login-submit">Entrar</button>
+          </form>
+        </div>
+        <p class="nota-demo">
+          Cuenta de demostración:
+          <span class="dato">demo@habitos.app</span> · <span class="dato">Habitos123</span>
+        </p>
+      </section>
+
+      <!-- Panel -->
+      <section id="vista-panel" class="vista vista-panel" aria-labelledby="titulo-panel" hidden>
+        <header class="encabezado">
+          <p class="marca"><span class="marca-logo" aria-hidden="true"></span>Hábitos Tracker</p>
+          <div class="encabezado-acciones">
+            <span class="usuario" data-testid="usuario-actual"></span>
+            <button type="button" class="boton boton-secundario boton-chico boton-guia" data-testid="ver-guia"
+                    data-tour="ver-guia">Ver guía</button>
+            <button type="button" class="boton boton-texto boton-chico boton-salir" data-testid="logout">Cerrar sesión</button>
+          </div>
+        </header>
+
+        <div class="titulo-panel">
+          <h1 id="titulo-panel" class="titulo" tabindex="-1">Mis hábitos</h1>
+          <p id="fecha-hoy" class="fecha-hoy"></p>
+        </div>
+
+        <form class="tarjeta formulario-habito" data-testid="habit-form" data-tour="nuevo-habito" novalidate>
+          <label for="habit-name">Nombre del hábito</label>
+          <div class="fila-campo">
+            <input id="habit-name" name="nombre" type="text" data-testid="habit-name"
+                   autocomplete="off" placeholder="Por ejemplo: Tomar agua" aria-describedby="habit-error">
+            <button type="submit" class="boton boton-primario" data-testid="habit-submit">Agregar</button>
+          </div>
+          <p id="habit-error" class="mensaje-error" data-testid="habit-error" aria-live="polite"></p>
+        </form>
+
+        <section class="seccion-lista" data-tour="lista" aria-labelledby="titulo-lista">
+          <div class="seccion-cabecera">
+            <h2 id="titulo-lista">Tus hábitos</h2>
+            <p id="resumen-hoy" class="resumen"></p>
+          </div>
+          <p class="estado-vacio" data-testid="empty-state">Aún no tienes hábitos. Crea el primero.</p>
+          <ul class="lista-habitos" data-testid="habit-list" aria-labelledby="titulo-lista"></ul>
+        </section>
+
+        <p id="anuncio" class="solo-lectores" role="status"></p>
+      </section>
+    </main>
+  </body>
+</html>

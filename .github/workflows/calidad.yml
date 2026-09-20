@@ -1,0 +1,59 @@
+# Análisis estático con SonarQube (Actividad 1.2).
+#
+# El stack de SonarQube de la materia corre en local (infra/sonarqube/docker-compose.yml), y un
+# runner de GitHub no puede alcanzar esa máquina. Por eso este workflow solo se ejecuta cuando el
+# repositorio tiene configurada una instancia accesible:
+#
+#   Settings → Secrets and variables → Actions
+#     Variable  SONAR_HOST_URL   https://sonarqube.ejemplo.com   (o la URL de SonarCloud)
+#     Secreto   SONAR_TOKEN      token del proyecto
+#
+# Mientras no existan, el job se salta y el análisis se hace en local con
+# scripts/sonar-escaneo.ps1 o scripts/sonar-escaneo.sh.
+name: Calidad (SonarQube)
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sonarqube:
+    name: Análisis estático
+    if: vars.SONAR_HOST_URL != ''
+    runs-on: ubuntu-latest
+    steps:
+      # El análisis necesita todo el historial para fechar cada línea (blame) y calcular el
+      # "código nuevo" del quality gate.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Cobertura de las pruebas unitarias
+        run: npm run test:cobertura -- --test-reporter=lcov --test-reporter-destination=coverage/lcov.info
+        continue-on-error: true
+
+      - name: Escanear
+        uses: sonarsource/sonarqube-scan-action@v6
+        env:
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # Detiene el pipeline si el proyecto no pasa el quality gate configurado en SonarQube.
+      - name: Esperar el quality gate
+        uses: sonarsource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
