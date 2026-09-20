@@ -1,0 +1,17 @@
+# Actividad 1.2 — control de calidad antes de cada commit.
+#
+# 1. Pruebas unitarias del dominio (rápidas).
+# 2. Prueba de humo de carga con k6: 6 usuarios virtuales durante 10 s contra el panel.
+#    Falla el commit si el p95 pasa de 5 s o si alguna petición devuelve error.
+#
+# Si k6 no está instalado, el paso se omite con un aviso en lugar de bloquear el commit.
+# Para saltar el hook a propósito:  git commit --no-verify
+
+npm run test:unit || exit 1
+
+if command -v k6 >/dev/null 2>&1 || [ -n "$K6_BIN" ]; then
+  npm run carga:smoke || exit 1
+else
+  echo "[pre-commit] k6 no está instalado; se omite la prueba de carga."
+  echo "[pre-commit] Instalación: https://grafana.com/docs/k6/latest/set-up/install-k6/"
+fi
