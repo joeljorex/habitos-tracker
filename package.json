@@ -14,10 +14,17 @@
     "test": "npm run test:unit && npm run test:e2e",
     "test:cobertura": "node --test --experimental-test-coverage \"--test-coverage-include=web/src/dominio/**\" --test-coverage-lines=90 \"tests/unit/*.test.mjs\"",
     "serve": "node scripts/serve.mjs",
-    "vendor:driver": "node scripts/vendor-driver.mjs"
+    "vendor:driver": "node scripts/vendor-driver.mjs",
+    "carga:smoke": "node scripts/carga.mjs tests/carga/smoke.js",
+    "carga:jai": "node scripts/carga.mjs tests/carga/jai-prueba.js",
+    "carga:jhm": "node scripts/carga.mjs tests/carga/jhm-prueba.js",
+    "sonar:levantar": "docker compose -f infra/sonarqube/docker-compose.yml up -d",
+    "sonar:apagar": "docker compose -f infra/sonarqube/docker-compose.yml down",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
-    "driver.js": "1.8.0"
+    "driver.js": "1.8.0",
+    "husky": "^9.1.7"
   }
 }
