@@ -60,10 +60,14 @@ async function main() {
   }
 
   console.log(`[carga] ejecutando ${guion} con k6`);
+  // Ojo con el shell de Windows: si la ruta del ejecutable trae espacios, la parte en el primer
+  // espacio y la prueba nunca corre. Por eso, cuando K6_BIN es una ruta se ejecuta directo; el shell
+  // solo se usa cuando es un simple "k6" que Windows tiene que resolver desde el PATH.
+  const esRuta = /[\\/]/.test(k6);
   const prueba = spawn(k6, ['run', guion], {
     env: { ...process.env, BASE_URL: base },
     stdio: 'inherit',
-    shell: process.platform === 'win32',
+    shell: !esRuta && process.platform === 'win32',
   });
   const [codigo] = await once(prueba, 'exit');
 
