@@ -1,0 +1,3 @@
+[develop 72eb641] docs(carga): nota de evidencia sin ejecutar el hook
+ 2 files changed, 221 insertions(+)
+ create mode 100644 docs/evidencia/precommit-con-hook.txt
