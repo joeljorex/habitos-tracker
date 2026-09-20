@@ -112,10 +112,50 @@ prueba completa vive en el pipeline: en cada Pull Request corre la de humo en el
 integrar a `main` corren las dos pruebas por integrante. Saltarse el hook con `--no-verify` es
 aceptable para un commit de documentación, y el PR igual vuelve a validar en la CI.
 
-## 6. Conclusiones
+## 6. Corrida contra el entorno publicado
+
+Después del release **v0.2.0**, el pipeline de despliegue continuo publicó el panel en GitHub Pages
+([joeljorex.github.io/habitos-tracker](https://joeljorex.github.io/habitos-tracker/)) y las mismas
+dos pruebas se ejecutaron contra ese entorno, ya con red de por medio. Es la prueba de carga sobre
+el entorno de liberación real, no sobre el equipo de desarrollo.
+
+| | JAI | JHM |
+|---|---|---|
+| Objetivo | `https://joeljorex.github.io/habitos-tracker` | el mismo |
+| **p95 del tiempo de respuesta** | **162.77 ms** | **43.57 ms** |
+| p99 | 493.16 ms | 68.89 ms |
+| Máximo | 714.5 ms | 122.52 ms |
+| Promedio | 60.8 ms | 29.36 ms |
+| Peticiones | 1 548 (27.67/s) | 1 620 (35.14/s) |
+| Iteraciones | 387 | 540 |
+| Peticiones con error | 0 % | 0 % |
+| Verificaciones | 100 % (2 322) | 100 % (2 700) |
+| `panel_completo` p95 | 500.6 ms | — |
+| `rachas_disponible` | — | 100 % (540 de 540) |
+| Umbrales cruzados | ninguno | ninguno |
+
+Qué cambia respecto a la corrida local:
+
+- El p95 sube de 4.88 ms a 162.77 ms en la prueba de JAI, y de 4.53 ms a 43.57 ms en la de JHM: la
+  diferencia es la red y el CDN de GitHub. Aun así, el resultado queda **30 veces por debajo del
+  objetivo de 5 s**.
+- `rachas_disponible` llegó a **100 %**, porque el módulo de rachas del PR #10 ya está publicado en
+  producción; en la corrida local todavía respondía 404.
+- Ninguna petición falló, así que el objetivo de disponibilidad también se cumple.
+
+Reportes completos: [`produccion/jai-prueba.md`](../tests/carga/resultados/produccion/jai-prueba.md) ·
+[`produccion/jhm-prueba.md`](../tests/carga/resultados/produccion/jhm-prueba.md)
+
+![Prueba de JAI contra producción](./evidencia/carga-jai-produccion.png)
+
+![Prueba de JHM contra producción](./evidencia/carga-jhm-produccion.png)
+
+## 7. Conclusiones
 
 1. El panel cumple el objetivo de servicio (`p95 < 5 s`) con margen amplio.
 2. No hubo ninguna petición fallida ni verificación en rojo en las dos pruebas.
 3. Los umbrales quedan versionados: una regresión de rendimiento rompe el pipeline sola.
 4. Cuando exista la API en Laravel (spec 005), se agregan sus endpoints al mismo plan y estos
    mismos umbrales aplican con cifras más realistas, ya que habrá base de datos de por medio.
+5. El pipeline de despliegue continuo publicó el panel y lo verificó solo: la prueba contra
+   producción confirma que el servicio cumple lo acordado en los niveles de servicio.

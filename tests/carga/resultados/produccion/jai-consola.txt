@@ -1,0 +1,242 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: tests/carga/jai-prueba.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 10 max VUs, 1m0s max duration (incl. graceful stop):
+              * carga_panel: Up to 10 looping VUs for 55s over 3 stages (gracefulRampDown: 5s, gracefulStop: 30s)
+
+
+running (0m01.0s), 01/10 VUs, 0 complete and 0 interrupted iterations
+carga_panel   [   2% ] 01/10 VUs  01.0s/55.0s
+
+running (0m02.0s), 02/10 VUs, 1 complete and 0 interrupted iterations
+carga_panel   [   4% ] 02/10 VUs  02.0s/55.0s
+
+running (0m03.0s), 02/10 VUs, 2 complete and 0 interrupted iterations
+carga_panel   [   5% ] 02/10 VUs  03.0s/55.0s
+
+running (0m04.0s), 03/10 VUs, 3 complete and 0 interrupted iterations
+carga_panel   [   7% ] 03/10 VUs  04.0s/55.0s
+
+running (0m05.0s), 03/10 VUs, 6 complete and 0 interrupted iterations
+carga_panel   [   9% ] 03/10 VUs  05.0s/55.0s
+
+running (0m06.0s), 04/10 VUs, 9 complete and 0 interrupted iterations
+carga_panel   [  11% ] 04/10 VUs  06.0s/55.0s
+
+running (0m07.0s), 05/10 VUs, 12 complete and 0 interrupted iterations
+carga_panel   [  13% ] 05/10 VUs  07.0s/55.0s
+
+running (0m08.0s), 05/10 VUs, 17 complete and 0 interrupted iterations
+carga_panel   [  15% ] 05/10 VUs  08.0s/55.0s
+
+running (0m09.0s), 06/10 VUs, 22 complete and 0 interrupted iterations
+carga_panel   [  16% ] 06/10 VUs  09.0s/55.0s
+
+running (0m10.0s), 06/10 VUs, 28 complete and 0 interrupted iterations
+carga_panel   [  18% ] 06/10 VUs  10.0s/55.0s
+
+running (0m11.0s), 07/10 VUs, 34 complete and 0 interrupted iterations
+carga_panel   [  20% ] 07/10 VUs  11.0s/55.0s
+
+running (0m12.0s), 08/10 VUs, 39 complete and 0 interrupted iterations
+carga_panel   [  22% ] 08/10 VUs  12.0s/55.0s
+
+running (0m13.0s), 08/10 VUs, 45 complete and 0 interrupted iterations
+carga_panel   [  24% ] 08/10 VUs  13.0s/55.0s
+
+running (0m14.0s), 09/10 VUs, 51 complete and 0 interrupted iterations
+carga_panel   [  25% ] 09/10 VUs  14.0s/55.0s
+
+running (0m15.0s), 09/10 VUs, 59 complete and 0 interrupted iterations
+carga_panel   [  27% ] 09/10 VUs  15.0s/55.0s
+
+running (0m16.0s), 10/10 VUs, 68 complete and 0 interrupted iterations
+carga_panel   [  29% ] 10/10 VUs  16.0s/55.0s
+
+running (0m17.0s), 10/10 VUs, 78 complete and 0 interrupted iterations
+carga_panel   [  31% ] 10/10 VUs  17.0s/55.0s
+
+running (0m18.0s), 10/10 VUs, 88 complete and 0 interrupted iterations
+carga_panel   [  33% ] 10/10 VUs  18.0s/55.0s
+
+running (0m19.0s), 10/10 VUs, 98 complete and 0 interrupted iterations
+carga_panel   [  35% ] 10/10 VUs  19.0s/55.0s
+
+running (0m20.0s), 10/10 VUs, 108 complete and 0 interrupted iterations
+carga_panel   [  36% ] 10/10 VUs  20.0s/55.0s
+
+running (0m21.0s), 10/10 VUs, 118 complete and 0 interrupted iterations
+carga_panel   [  38% ] 10/10 VUs  21.0s/55.0s
+
+running (0m22.0s), 10/10 VUs, 128 complete and 0 interrupted iterations
+carga_panel   [  40% ] 10/10 VUs  22.0s/55.0s
+
+running (0m23.0s), 10/10 VUs, 138 complete and 0 interrupted iterations
+carga_panel   [  42% ] 10/10 VUs  23.0s/55.0s
+
+running (0m24.0s), 10/10 VUs, 141 complete and 0 interrupted iterations
+carga_panel   [  44% ] 10/10 VUs  24.0s/55.0s
+
+running (0m25.0s), 10/10 VUs, 148 complete and 0 interrupted iterations
+carga_panel   [  45% ] 10/10 VUs  25.0s/55.0s
+
+running (0m26.0s), 10/10 VUs, 158 complete and 0 interrupted iterations
+carga_panel   [  47% ] 10/10 VUs  26.0s/55.0s
+
+running (0m27.0s), 10/10 VUs, 168 complete and 0 interrupted iterations
+carga_panel   [  49% ] 10/10 VUs  27.0s/55.0s
+
+running (0m28.0s), 10/10 VUs, 178 complete and 0 interrupted iterations
+carga_panel   [  51% ] 10/10 VUs  28.0s/55.0s
+
+running (0m29.0s), 10/10 VUs, 188 complete and 0 interrupted iterations
+carga_panel   [  53% ] 10/10 VUs  29.0s/55.0s
+
+running (0m30.0s), 10/10 VUs, 198 complete and 0 interrupted iterations
+carga_panel   [  55% ] 10/10 VUs  30.0s/55.0s
+
+running (0m31.0s), 10/10 VUs, 208 complete and 0 interrupted iterations
+carga_panel   [  56% ] 10/10 VUs  31.0s/55.0s
+
+running (0m32.0s), 10/10 VUs, 218 complete and 0 interrupted iterations
+carga_panel   [  58% ] 10/10 VUs  32.0s/55.0s
+
+running (0m33.0s), 10/10 VUs, 228 complete and 0 interrupted iterations
+carga_panel   [  60% ] 10/10 VUs  33.0s/55.0s
+
+running (0m34.0s), 10/10 VUs, 238 complete and 0 interrupted iterations
+carga_panel   [  62% ] 10/10 VUs  34.0s/55.0s
+
+running (0m35.0s), 10/10 VUs, 248 complete and 0 interrupted iterations
+carga_panel   [  64% ] 10/10 VUs  35.0s/55.0s
+
+running (0m36.0s), 10/10 VUs, 248 complete and 0 interrupted iterations
+carga_panel   [  65% ] 10/10 VUs  36.0s/55.0s
+
+running (0m37.0s), 10/10 VUs, 258 complete and 0 interrupted iterations
+carga_panel   [  67% ] 10/10 VUs  37.0s/55.0s
+
+running (0m38.0s), 10/10 VUs, 268 complete and 0 interrupted iterations
+carga_panel   [  69% ] 10/10 VUs  38.0s/55.0s
+
+running (0m39.0s), 10/10 VUs, 278 complete and 0 interrupted iterations
+carga_panel   [  71% ] 10/10 VUs  39.0s/55.0s
+
+running (0m40.0s), 10/10 VUs, 288 complete and 0 interrupted iterations
+carga_panel   [  73% ] 10/10 VUs  40.0s/55.0s
+
+running (0m41.0s), 10/10 VUs, 288 complete and 0 interrupted iterations
+carga_panel   [  75% ] 10/10 VUs  41.0s/55.0s
+
+running (0m42.0s), 10/10 VUs, 298 complete and 0 interrupted iterations
+carga_panel   [  76% ] 10/10 VUs  42.0s/55.0s
+
+running (0m43.0s), 10/10 VUs, 308 complete and 0 interrupted iterations
+carga_panel   [  78% ] 10/10 VUs  43.0s/55.0s
+
+running (0m44.0s), 10/10 VUs, 318 complete and 0 interrupted iterations
+carga_panel   [  80% ] 10/10 VUs  44.0s/55.0s
+
+running (0m45.0s), 10/10 VUs, 328 complete and 0 interrupted iterations
+carga_panel   [  82% ] 10/10 VUs  45.0s/55.0s
+
+running (0m46.0s), 10/10 VUs, 338 complete and 0 interrupted iterations
+carga_panel   [  84% ] 10/10 VUs  46.0s/55.0s
+
+running (0m47.0s), 09/10 VUs, 348 complete and 0 interrupted iterations
+carga_panel   [  85% ] 09/10 VUs  47.0s/55.0s
+
+running (0m48.0s), 08/10 VUs, 357 complete and 0 interrupted iterations
+carga_panel   [  87% ] 08/10 VUs  48.0s/55.0s
+
+running (0m49.0s), 07/10 VUs, 363 complete and 0 interrupted iterations
+carga_panel   [  89% ] 07/10 VUs  49.0s/55.0s
+
+running (0m50.0s), 07/10 VUs, 368 complete and 0 interrupted iterations
+carga_panel   [  91% ] 07/10 VUs  50.0s/55.0s
+
+running (0m51.0s), 05/10 VUs, 372 complete and 0 interrupted iterations
+carga_panel   [  93% ] 05/10 VUs  51.0s/55.0s
+
+running (0m52.0s), 04/10 VUs, 377 complete and 0 interrupted iterations
+carga_panel   [  95% ] 04/10 VUs  52.0s/55.0s
+
+running (0m53.0s), 03/10 VUs, 381 complete and 0 interrupted iterations
+carga_panel   [  96% ] 03/10 VUs  53.0s/55.0s
+
+running (0m54.0s), 02/10 VUs, 384 complete and 0 interrupted iterations
+carga_panel   [  98% ] 02/10 VUs  54.0s/55.0s
+
+running (0m55.0s), 01/10 VUs, 386 complete and 0 interrupted iterations
+carga_panel   [ 100% ] 01/10 VUs  55.0s/55.0s
+
+==============================================================================
+  Prueba de carga del panel — JAI (Joel Armando Ibarra Rubalcava)
+==============================================================================
+  Fecha:    2026-09-20T22:04:42.282Z
+  Objetivo: https://joeljorex.github.io/habitos-tracker
+  Duración: 55.95 s
+------------------------------------------------------------------------------
+  checks  (rate)
+      100 % (2322 de 2322)   [rate>0.99 ok]
+  data_received  (counter)
+      total 21.93 MB · 410 968.08/s
+  data_sent  (counter)
+      total 165.08 kB · 3 021.19/s
+  documento_bytes  (gauge)
+      actual 4.64 kB · min 4.64 kB · max 4.64 kB
+  group_duration  (trend)
+      avg 63.87 ms · min 21.01 ms · med 38.69 ms · p(90) 104.02 ms · p(95) 192.84 ms · p(99) 501.58 ms · max 715.71 ms
+  http_req_blocked  (trend)
+      avg 0.49 ms · min 0 ms · med 0 ms · p(90) 0 ms · p(95) 0 ms · p(99) 0 ms · max 163.79 ms
+  http_req_connecting  (trend)
+      avg 0.23 ms · min 0 ms · med 0 ms · p(90) 0 ms · p(95) 0 ms · p(99) 0 ms · max 110.51 ms
+  http_req_duration  (trend)
+      avg 60.8 ms · min 21.01 ms · med 38.84 ms · p(90) 97.09 ms · p(95) 162.77 ms · p(99) 493.16 ms · max 714.5 ms   [p(95)<5000 ok, p(99)<8000 ok]
+  http_req_duration{expected_response:true}  (trend)
+      avg 60.8 ms · min 21.01 ms · med 38.84 ms · p(90) 97.09 ms · p(95) 162.77 ms · p(99) 493.16 ms · max 714.5 ms
+  http_req_duration{recurso:documento}  (trend)
+      avg 48.81 ms · min 21.01 ms · med 26.64 ms · p(90) 59.42 ms · p(95) 180.75 ms · p(99) 496.01 ms · max 514.78 ms   [p(95)<5000 ok]
+  http_req_duration{recurso:estilos}  (trend)
+      avg 67.61 ms · min 24.56 ms · med 43.09 ms · p(90) 103.11 ms · p(95) 143.57 ms · p(99) 463.06 ms · max 714.5 ms   [p(95)<5000 ok]
+  http_req_duration{recurso:script}  (trend)
+      avg 63.4 ms · min 21.99 ms · med 42.41 ms · p(90) 100.32 ms · p(95) 149.54 ms · p(99) 471.49 ms · max 714.5 ms   [p(95)<5000 ok]
+  http_req_failed  (rate)
+      0 % (0 de 1548)   [rate<0.01 ok]
+  http_req_receiving  (trend)
+      avg 13.14 ms · min 0 ms · med 3.6 ms · p(90) 26.23 ms · p(95) 42.15 ms · p(99) 214.45 ms · max 594.82 ms
+  http_req_sending  (trend)
+      avg 0.12 ms · min 0 ms · med 0 ms · p(90) 0.52 ms · p(95) 0.67 ms · p(99) 1 ms · max 2.17 ms
+  http_req_tls_handshaking  (trend)
+      avg 0.25 ms · min 0 ms · med 0 ms · p(90) 0 ms · p(95) 0 ms · p(99) 0 ms · max 58.88 ms
+  http_req_waiting  (trend)
+      avg 47.55 ms · min 20.29 ms · med 31.97 ms · p(90) 73.81 ms · p(95) 115.08 ms · p(99) 412.52 ms · max 674.94 ms
+  http_reqs  (counter)
+      total 1 548 · 27.67/s
+  iteration_duration  (trend)
+      avg 1 128.14 ms · min 1 051.04 ms · med 1 079.11 ms · p(90) 1 266.73 ms · p(95) 1 501.15 ms · p(99) 1 616.72 ms · max 1 746.32 ms
+  iterations  (counter)
+      total 387 · 6.92/s
+  panel_bytes  (counter)
+      total 20.72 MB · 388 310.95/s
+  panel_completo  (trend)
+      avg 127.78 ms · min 51 ms · med 79 ms · p(90) 266.4 ms · p(95) 500.6 ms · p(99) 616.42 ms · max 746 ms   [p(95)<5000 ok]
+  panel_ok  (rate)
+      100 % (387 de 387)   [rate>0.99 ok]
+  vus  (gauge)
+      actual 1 · min 1 · max 10
+  vus_max  (gauge)
+      actual 10 · min 10 · max 10
+==============================================================================
+
+running (0m56.0s), 00/10 VUs, 387 complete and 0 interrupted iterations
+carga_panel ✓ [ 100% ] 00/10 VUs  55s
