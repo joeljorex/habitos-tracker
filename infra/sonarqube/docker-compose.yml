@@ -37,7 +37,8 @@ services:
       - extensiones_sonar:/opt/sonarqube/extensions
       - logs_sonar:/opt/sonarqube/logs
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:9000/api/system/status | grep -q '\"status\":\"UP\"'"]
+      # La imagen de SonarQube trae curl, no wget.
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/api/system/status | grep -q '\"status\":\"UP\"'"]
       interval: 20s
       timeout: 10s
       retries: 30
