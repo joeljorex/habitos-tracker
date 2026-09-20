@@ -23,8 +23,8 @@ description: "Task list for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Crear las carpetas `.github/workflows/`, `.devcontainer/`, `infra/terraform/` y `scripts/` según plan.md
-- [ ] T002 [P] Verificar que `.gitignore` ignora `infra/terraform/.terraform/`, `*.tfstate`, `*.tfstate.*` y `terraform.tfvars` (el lock `.terraform.lock.hcl` sí se versiona)
+- [x] T001 Crear las carpetas `.github/workflows/`, `.devcontainer/`, `infra/terraform/` y `scripts/` según plan.md
+- [x] T002 [P] Verificar que `.gitignore` ignora `infra/terraform/.terraform/`, `*.tfstate`, `*.tfstate.*` y `terraform.tfvars` (el lock `.terraform.lock.hcl` sí se versiona)
 
 ---
 
@@ -32,8 +32,8 @@ description: "Task list for feature implementation"
 
 **Purpose**: piezas que usan todas las historias
 
-- [ ] T003 [P] Implementar `scripts/verificar-specs.mjs` (Node, sin dependencias): recorre `specs/*/`, falla con código 1 listando cada carpeta sin `spec.md`, `plan.md` o `tasks.md`; si no existe `specs/`, termina con código 0 y un aviso
-- [ ] T004 Crear el job `detectar` ("Detectar componentes") en `.github/workflows/ci.yml` con outputs `web`, `api`, `app`, `iac` según la tabla de detección de contracts/pipelines.md
+- [x] T003 [P] Implementar `scripts/verificar-specs.mjs` (Node, sin dependencias): recorre `specs/*/`, falla con código 1 listando cada carpeta sin `spec.md`, `plan.md` o `tasks.md`; si no existe `specs/`, termina con código 0 y un aviso
+- [x] T004 Crear el job `detectar` ("Detectar componentes") en `.github/workflows/ci.yml` con outputs `web`, `api`, `app`, `iac` según la tabla de detección de contracts/pipelines.md
 
 **Checkpoint**: la detección de componentes funciona y el gate SDD se puede ejecutar localmente.
 
@@ -45,13 +45,13 @@ description: "Task list for feature implementation"
 
 **Independent Test**: PR con una prueba rota → check rojo y merge bloqueado (quickstart §2).
 
-- [ ] T005 [US1] Configurar en `.github/workflows/ci.yml` los disparadores (`pull_request` a main/develop, `push` a develop, `workflow_call` con outputs `web/api/app/iac`, `workflow_dispatch`), `permissions: contents: read` y `concurrency` (`ci-${{ github.ref }}`, cancelación solo en `pull_request`)
-- [ ] T006 [US1] Agregar el job `web` ("Web - unit + e2e (Playwright)"): Node 24 con caché npm, `npm ci`, `npm run test:unit`, `npx playwright install --with-deps chromium`, `npm run test:e2e` y subida de `playwright-report/` como artefacto `playwright-report` con `if: always()` y retención de 14 días, en `.github/workflows/ci.yml`
-- [ ] T007 [P] [US1] Agregar el job `api` ("API (Laravel) - Tests") con PHP 8.3, `composer install --no-interaction --prefer-dist` y `php artisan test` en `api/`, en `.github/workflows/ci.yml`
-- [ ] T008 [P] [US1] Agregar el job `app` ("App (Android) - Build & Unit Tests") con Temurin 17 y `./gradlew testDebugUnitTest` en `app/`, en `.github/workflows/ci.yml`
-- [ ] T009 [P] [US1] Agregar el job `iac` ("IaC - Terraform validate") con `terraform fmt -check -recursive`, `terraform init -backend=false` y `terraform validate` en `infra/terraform/`, en `.github/workflows/ci.yml`
-- [ ] T010 [US1] Agregar el job `sdd` ("SDD - Specs completas") que ejecuta `node scripts/verificar-specs.mjs`, en `.github/workflows/ci.yml`
-- [ ] T011 [US1] Ejecutar `actionlint .github/workflows/ci.yml` sin errores
+- [x] T005 [US1] Configurar en `.github/workflows/ci.yml` los disparadores (`pull_request` a main/develop, `push` a develop, `workflow_call` con outputs `web/api/app/iac`, `workflow_dispatch`), `permissions: contents: read` y `concurrency` (`ci-${{ github.ref }}`, cancelación solo en `pull_request`)
+- [x] T006 [US1] Agregar el job `web` ("Web - unit + e2e (Playwright)"): Node 24 con caché npm, `npm ci`, `npm run test:unit`, `npx playwright install --with-deps chromium`, `npm run test:e2e` y subida de `playwright-report/` como artefacto `playwright-report` con `if: always()` y retención de 14 días, en `.github/workflows/ci.yml`
+- [x] T007 [P] [US1] Agregar el job `api` ("API (Laravel) - Tests") con PHP 8.3, `composer install --no-interaction --prefer-dist` y `php artisan test` en `api/`, en `.github/workflows/ci.yml`
+- [x] T008 [P] [US1] Agregar el job `app` ("App (Android) - Build & Unit Tests") con Temurin 17 y `./gradlew testDebugUnitTest` en `app/`, en `.github/workflows/ci.yml`
+- [x] T009 [P] [US1] Agregar el job `iac` ("IaC - Terraform validate") con `terraform fmt -check -recursive`, `terraform init -backend=false` y `terraform validate` en `infra/terraform/`, en `.github/workflows/ci.yml`
+- [x] T010 [US1] Agregar el job `sdd` ("SDD - Specs completas") que ejecuta `node scripts/verificar-specs.mjs`, en `.github/workflows/ci.yml`
+- [x] T011 [US1] Ejecutar `actionlint .github/workflows/ci.yml` sin errores
 
 **Checkpoint**: US1 funcional; los 6 checks requeridos existen con los nombres del contrato.
 
@@ -63,15 +63,15 @@ description: "Task list for feature implementation"
 
 **Independent Test**: quickstart §3.
 
-- [ ] T012 [US2] Crear `.github/workflows/cd.yml` con disparadores (`push` a main, `workflow_dispatch`), `permissions: contents: read` y el job `ci` que invoca `./.github/workflows/ci.yml`
-- [ ] T013 [US2] Agregar el job `construir-web` ("Construir paquete del panel") que empaqueta `web/` con `actions/upload-pages-artifact`, en `.github/workflows/cd.yml`
-- [ ] T014 [US2] Agregar el job `smoke-staging` ("Smoke tests (staging)", ambiente `staging`) que descarga el artefacto `github-pages`, lo extrae en `_site/` y ejecuta `SERVE_DIR=_site npm run test:smoke`, en `.github/workflows/cd.yml`
-- [ ] T015 [US2] Agregar el job `aprobacion-produccion` ("Aprobación de producción", ambiente `production`) en `.github/workflows/cd.yml`
-- [ ] T016 [US2] Agregar el job `desplegar-produccion` ("Publicar en GitHub Pages", ambiente `github-pages`, `pages: write`, `id-token: write`, concurrencia `pages` sin cancelación) con `actions/deploy-pages`, en `.github/workflows/cd.yml`
-- [ ] T017 [US2] Agregar el job `verificar-produccion` ("Verificar producción") que ejecuta `npm run test:smoke` con `BASE_URL` = URL publicada, en `.github/workflows/cd.yml`
-- [ ] T018 [P] [US2] Agregar el job `desplegar-api` ("Desplegar API (Railway)") condicionado a `api/Dockerfile` y al secreto `RAILWAY_TOKEN` (aviso en `GITHUB_STEP_SUMMARY` si falta), con migraciones `php artisan migrate --force` después del health check, en `.github/workflows/cd.yml`
-- [ ] T019 [P] [US2] Agregar el job `construir-app` ("Construir app (AAB)") con `./gradlew bundleRelease`, artefacto AAB y distribución Firebase solo si existen `FIREBASE_APP_ID` y `FIREBASE_CREDENTIALS`, en `.github/workflows/cd.yml`
-- [ ] T020 [US2] Ejecutar `actionlint .github/workflows/cd.yml` sin errores
+- [x] T012 [US2] Crear `.github/workflows/cd.yml` con disparadores (`push` a main, `workflow_dispatch`), `permissions: contents: read` y el job `ci` que invoca `./.github/workflows/ci.yml`
+- [x] T013 [US2] Agregar el job `construir-web` ("Construir paquete del panel") que empaqueta `web/` con `actions/upload-pages-artifact`, en `.github/workflows/cd.yml`
+- [x] T014 [US2] Agregar el job `smoke-staging` ("Smoke tests (staging)", ambiente `staging`) que descarga el artefacto `github-pages`, lo extrae en `_site/` y ejecuta `SERVE_DIR=_site npm run test:smoke`, en `.github/workflows/cd.yml`
+- [x] T015 [US2] Agregar el job `aprobacion-produccion` ("Aprobación de producción", ambiente `production`) en `.github/workflows/cd.yml`
+- [x] T016 [US2] Agregar el job `desplegar-produccion` ("Publicar en GitHub Pages", ambiente `github-pages`, `pages: write`, `id-token: write`, concurrencia `pages` sin cancelación) con `actions/deploy-pages`, en `.github/workflows/cd.yml`
+- [x] T017 [US2] Agregar el job `verificar-produccion` ("Verificar producción") que ejecuta `npm run test:smoke` con `BASE_URL` = URL publicada, en `.github/workflows/cd.yml`
+- [x] T018 [P] [US2] Agregar el job `desplegar-api` ("Desplegar API (Railway)") condicionado a `api/Dockerfile` y al secreto `RAILWAY_TOKEN` (aviso en `GITHUB_STEP_SUMMARY` si falta), con migraciones `php artisan migrate --force` después del health check, en `.github/workflows/cd.yml`
+- [x] T019 [P] [US2] Agregar el job `construir-app` ("Construir app (AAB)") con `./gradlew bundleRelease`, artefacto AAB y distribución Firebase solo si existen `FIREBASE_APP_ID` y `FIREBASE_CREDENTIALS`, en `.github/workflows/cd.yml`
+- [x] T020 [US2] Ejecutar `actionlint .github/workflows/cd.yml` sin errores
 
 **Checkpoint**: US1 y US2 funcionan juntas; el CD reutiliza la CI.
 
@@ -83,8 +83,8 @@ description: "Task list for feature implementation"
 
 **Independent Test**: quickstart §4.
 
-- [ ] T021 [US3] Crear `.devcontainer/devcontainer.json` con imagen oficial de Node 24, features de PHP 8.3, Python 3.12, Terraform, Docker-in-Docker y GitHub CLI, puertos 4173 ("Panel web") y 8000 ("API Laravel") y extensiones de contracts/pipelines.md §5
-- [ ] T022 [US3] Crear `.devcontainer/post-create.sh` idempotente: `npm ci` y `npx playwright install --with-deps chromium` si existe `package.json`; instalación de `uv` y de `specify-cli` v1.0.6
+- [x] T021 [US3] Crear `.devcontainer/devcontainer.json` con imagen oficial de Node 24, features de PHP 8.3, Python 3.12, Terraform, Docker-in-Docker y GitHub CLI, puertos 4173 ("Panel web") y 8000 ("API Laravel") y extensiones de contracts/pipelines.md §5
+- [x] T022 [US3] Crear `.devcontainer/post-create.sh` idempotente: `npm ci` y `npx playwright install --with-deps chromium` si existe `package.json`; instalación de `uv` y de `specify-cli` v1.0.6
 
 **Checkpoint**: el Codespace se crea sin errores y `npm test` pasa.
 
@@ -96,13 +96,13 @@ description: "Task list for feature implementation"
 
 **Independent Test**: quickstart §1 (sin credenciales) y §5 (con token).
 
-- [ ] T023 [US4] Crear `infra/terraform/versions.tf` con `required_version >= 1.9` y los proveedores `integrations/github ~> 6.0` y `terraform-community-providers/railway`
-- [ ] T024 [P] [US4] Crear `infra/terraform/variables.tf` con las variables y valores por defecto de contracts/pipelines.md §4
-- [ ] T025 [US4] Crear `infra/terraform/github.tf`: protección de cada rama de `ramas_protegidas` (PR obligatorio, `aprobaciones_requeridas`, checks estrictos `checks_requeridos`, sin force-push ni borrado) y ambientes `staging` y `production` (revisores `revisores_produccion`, solo ramas protegidas)
-- [ ] T026 [US4] Crear `infra/terraform/railway.tf` con proyecto, servicio `api` y ambiente `staging` condicionados a `habilitar_railway`
-- [ ] T027 [P] [US4] Crear `infra/terraform/outputs.tf` y `infra/terraform/terraform.tfvars.example`
-- [ ] T028 [US4] Crear `infra/terraform/README.md` con uso, credenciales por variables de entorno e importación de recursos existentes
-- [ ] T029 [US4] Ejecutar `terraform fmt -check -recursive`, `terraform init -backend=false` y `terraform validate` en `infra/terraform/` sin errores
+- [x] T023 [US4] Crear `infra/terraform/versions.tf` con `required_version >= 1.9` y los proveedores `integrations/github ~> 6.0` y `terraform-community-providers/railway`
+- [x] T024 [P] [US4] Crear `infra/terraform/variables.tf` con las variables y valores por defecto de contracts/pipelines.md §4
+- [x] T025 [US4] Crear `infra/terraform/github.tf`: protección de cada rama de `ramas_protegidas` (PR obligatorio, `aprobaciones_requeridas`, checks estrictos `checks_requeridos`, sin force-push ni borrado) y ambientes `staging` y `production` (revisores `revisores_produccion`, solo ramas protegidas)
+- [x] T026 [US4] Crear `infra/terraform/railway.tf` con proyecto, servicio `api` y ambiente `staging` condicionados a `habilitar_railway`
+- [x] T027 [P] [US4] Crear `infra/terraform/outputs.tf` y `infra/terraform/terraform.tfvars.example`
+- [x] T028 [US4] Crear `infra/terraform/README.md` con uso, credenciales por variables de entorno e importación de recursos existentes
+- [x] T029 [US4] Ejecutar `terraform fmt -check -recursive`, `terraform init -backend=false` y `terraform validate` en `infra/terraform/` sin errores
 
 **Checkpoint**: todas las historias completas.
 
@@ -110,8 +110,8 @@ description: "Task list for feature implementation"
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T030 [P] Actualizar `docs/flujo-cicd.md`, `docs/estrategia-despliegue.md`, `docs/parametros-configuracion.md` y `README.md` con los pipelines, Codespaces y Terraform
-- [ ] T031 Ejecutar la validación completa de `quickstart.md` §1
+- [x] T030 [P] Actualizar `docs/flujo-cicd.md`, `docs/estrategia-despliegue.md`, `docs/parametros-configuracion.md` y `README.md` con los pipelines, Codespaces y Terraform
+- [x] T031 Ejecutar la validación completa de `quickstart.md` §1
 
 ---
 
@@ -155,3 +155,12 @@ Task: "Crear infra/terraform/outputs.tf y terraform.tfvars.example"
 
 - Los nombres de jobs son contrato: si cambian, actualizar `checks_requeridos` en Terraform.
 - Commit sugerido: `ci: pipelines CI/CD, Codespaces y Terraform (spec 003)`.
+
+## Notas de implementación
+
+- **T002**: las entradas de Terraform en `.gitignore` llegaron con el PR de Spec Kit (`feature/sdd-speckit`).
+- **T007**: el job `api` crea un `.env` efímero y ejecuta `key:generate` si existe `.env.example` (Laravel exige `APP_KEY` en pruebas).
+- **T008**: los jobs de Android ejecutan `chmod +x gradlew` y usan caché de Gradle.
+- **T018**: las migraciones corren como *pre-deploy command* del servicio en Railway (la base de datos no es accesible desde el runner); `railway up --ci` espera el veredicto. Contrato actualizado en `contracts/pipelines.md §2`.
+- **T022**: `post-create.sh` también ejecuta `composer install` si existe `api/composer.json`.
+- **Contrato**: `Detectar componentes` se agregó a los checks requeridos (si fallara, los demás quedarían *skipped*).
