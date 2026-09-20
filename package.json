@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "test:smoke": "playwright test --grep @smoke",
     "test": "npm run test:unit && npm run test:e2e",
+    "test:cobertura": "node --test --experimental-test-coverage \"--test-coverage-include=web/src/dominio/**\" --test-coverage-lines=90 \"tests/unit/*.test.mjs\"",
     "serve": "node scripts/serve.mjs",
     "vendor:driver": "node scripts/vendor-driver.mjs"
   },

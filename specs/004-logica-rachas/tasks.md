@@ -20,13 +20,13 @@ description: "Task list for feature implementation"
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Agregar el script `test:cobertura` (`node --test --experimental-test-coverage` limitado a `web/src/dominio/`) en `package.json`
+- [x] T001 Agregar el script `test:cobertura` (`node --test --experimental-test-coverage` limitado a `web/src/dominio/`) en `package.json`
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] T002 Crear `web/src/dominio/rachas.js` exportando `calcularRachas` (sin implementar) para que las pruebas fallen por el motivo correcto
+- [x] T002 Crear `web/src/dominio/rachas.js` exportando `calcularRachas` (sin implementar) para que las pruebas fallen por el motivo correcto
 
 ---
 
@@ -38,12 +38,12 @@ description: "Task list for feature implementation"
 
 ### Tests for User Story 1
 
-- [ ] T003 [US1] Pruebas unitarias con los casos V01–V13 del contrato (una prueba por caso, nombrada con su ID) en `tests/unit/rachas.test.mjs`
+- [x] T003 [US1] Pruebas unitarias con los casos V01–V13 del contrato (una prueba por caso, nombrada con su ID) en `tests/unit/rachas.test.mjs`
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Implementar `calcularRachas(fechas, hoy)` en `web/src/dominio/rachas.js`: fechas únicas, ignorar "fecha posterior a hoy", conversión con `Date.UTC`, racha actual que termina hoy o ayer, mejor racha ≥ actual
-- [ ] T005 [US1] Ejecutar `npm run test:cobertura` y confirmar ≥ 90 % de líneas en `rachas.js`
+- [x] T004 [US1] Implementar `calcularRachas(fechas, hoy)` en `web/src/dominio/rachas.js`: fechas únicas, ignorar "fecha posterior a hoy", conversión con `Date.UTC`, racha actual que termina hoy o ayer, mejor racha ≥ actual
+- [x] T005 [US1] Ejecutar `npm run test:cobertura` y confirmar ≥ 90 % de líneas en `rachas.js`
 
 **Checkpoint**: dominio correcto y probado.
 
@@ -57,12 +57,12 @@ description: "Task list for feature implementation"
 
 ### Tests for User Story 2
 
-- [ ] T006 [P] [US2] Pruebas e2e `CP-04 Cálculo de racha tras un día saltado` y `CP-13 La racha sigue viva si el último día cumplido fue ayer y se rompe si fue antes` con `page.clock.setFixedTime()` y datos sembrados, en `tests/e2e/rachas.spec.js`
+- [x] T006 [P] [US2] Pruebas e2e `CP-04 Cálculo de racha tras un día saltado` y `CP-13 La racha sigue viva si el último día cumplido fue ayer y se rompe si fue antes` con `page.clock.setFixedTime()` y datos sembrados, en `tests/e2e/rachas.spec.js`
 
 ### Implementation for User Story 2
 
-- [ ] T007 [US2] Mostrar `habit-streak-current` y `habit-streak-max` (textos del contrato, singular/plural) en cada hábito y recalcular al pulsar "Marcar hoy", en `web/src/app.js`
-- [ ] T008 [P] [US2] Estilos de las insignias de racha en `web/css/estilos.css`
+- [x] T007 [US2] Mostrar `habit-streak-current` y `habit-streak-max` (textos del contrato, singular/plural) en cada hábito y recalcular al pulsar "Marcar hoy", en `web/src/app.js`
+- [x] T008 [P] [US2] Estilos de las insignias de racha en `web/css/estilos.css`
 
 ---
 
@@ -70,16 +70,16 @@ description: "Task list for feature implementation"
 
 **Goal**: la guía explica la racha; el contrato queda listo para Kotlin y PHP.
 
-- [ ] T009 [US3] Registrar el paso `racha` con `agregarPaso(..., { antesDe: 'ver-guia' })` y agregar `data-tour="racha"` a la racha del primer hábito, en `web/src/tour/pasos.js` y `web/src/app.js`
-- [ ] T010 [US3] Extender `tests/e2e/tour.spec.js` para comprobar que el paso "Tu racha" aparece justo antes de "¿Necesitas ayuda?"
-- [ ] T011 [P] [US3] Documentar en `docs/casos-de-prueba.md` los casos V01–V13 como referencia para JUnit (app) y PHPUnit (API)
+- [x] T009 [US3] Registrar el paso `racha` con `agregarPaso(..., { antesDe: 'ver-guia' })` y agregar `data-tour="racha"` a la racha del primer hábito, en `web/src/tour/pasos.js` y `web/src/app.js`
+- [x] T010 [US3] Extender `tests/e2e/tour.spec.js` para comprobar que el paso "Tu racha" aparece justo antes de "¿Necesitas ayuda?"
+- [x] T011 [P] [US3] Documentar en `docs/casos-de-prueba.md` los casos V01–V13 como referencia para JUnit (app) y PHPUnit (API)
 
 ---
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T012 [P] Actualizar `docs/plan-de-pruebas.md` (cobertura de rachas) y la trazabilidad
-- [ ] T013 Ejecutar la validación de `quickstart.md` y la suite completa `npm test`
+- [x] T012 [P] Actualizar `docs/plan-de-pruebas.md` (cobertura de rachas) y la trazabilidad
+- [x] T013 Ejecutar la validación de `quickstart.md` y la suite completa `npm test`
 
 ---
 
@@ -99,3 +99,13 @@ MVP = US1 (dominio con 13 casos en verde). Después US2 (UI) y US3 (guía + docu
 ## Notes
 
 - Commit sugerido: `feat(web): módulo de rachas con casos de referencia (spec 004)`.
+
+## Notas de implementación
+
+- **T001**: `test:cobertura` = `node --test --experimental-test-coverage "--test-coverage-include=web/src/dominio/**" --test-coverage-lines=90 "tests/unit/*.test.mjs"`. El umbral del 90 % hace fallar el script si la cobertura baja; se mide sobre todo `web/src/dominio/` (95,97 %).
+- **T003**: además de V01–V13 hay 4 casos adicionales: pureza, cambio de horario de verano, fechas con formato inválido y "hoy" inválido.
+- **T005**: `rachas.js` tiene 100 % de líneas, ramas y funciones.
+- **T009**: el paso «Tu racha» ocupa 9 líneas nuevas en `pasos.js` y no toca el motor, con lo que cumple el SC-004 de la spec 002 (menos de 10).
+- **T011 / T012**: la documentación se actualizó en este mismo PR (`docs/casos-de-prueba.md`, `docs/plan-de-pruebas.md`, `docs/trazabilidad.md`).
+- **Cambio adicional (spec 002)**: `web/src/tour/tour.js` pasa el foco de la X a «Siguiente»/«Listo» al resaltar cada paso; con la X enfocada, un Enter cerraba la guía. Lo cubre `CP-11 La guía se recorre con las flechas del teclado y conserva el foco`.
+- **Resultado**: 65/65 unitarias y 40/40 e2e. Las 16 unitarias y 8 e2e nuevas fallaron antes de implementar.

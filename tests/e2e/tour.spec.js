@@ -74,6 +74,11 @@ test.describe('Guía en la primera visita', () => {
       'Cuando tengas hábitos, cada uno tendrá un botón «Marcar hoy» para registrar tu avance.',
     );
     expect(pasos.at(-1).titulo).toBe(ULTIMO_TITULO);
+    // Spec 004: "Tu racha" va justo antes del último paso (sin hábitos, con su alternativa).
+    expect(pasos.at(-2)).toEqual({
+      titulo: 'Tu racha',
+      descripcion: 'Cada hábito mostrará su racha: los días seguidos que lo cumples y tu mejor marca.',
+    });
     await expect(page.getByTestId('ver-guia')).toHaveClass(/driver-active-element/);
 
     await expect(siguiente(page)).toHaveText('Listo');
@@ -107,6 +112,39 @@ test.describe('Guía en la primera visita', () => {
     await expect(globo(page)).toBeInViewport({ ratio: 1 });
   });
 
+  test('CP-11 El paso «Tu racha» va justo antes de «¿Necesitas ayuda?» y resalta la racha del primer hábito', async ({
+    page,
+  }) => {
+    await sembrar(page, {
+      habitos: [
+        { id: 'h-agua', nombre: 'Tomar agua', creadoEn: '2026-09-01T15:00:00.000Z' },
+        { id: 'h-leer', nombre: 'Leer 20 min', creadoEn: '2026-09-02T15:00:00.000Z' },
+      ],
+      tourVisto: false,
+    });
+    await iniciarSesion(page);
+    const total = await totalDePasos(page);
+
+    // Avanza hasta el penúltimo paso.
+    for (let n = 1; n < total - 1; n += 1) {
+      await siguiente(page).click();
+      await expect(progreso(page)).toHaveText(`${n + 1} de ${total}`);
+    }
+    await expect(titulo(page)).toHaveText('Tu racha');
+    await expect(descripcion(page)).toHaveText(
+      'La racha cuenta los días seguidos que cumples el hábito. Si saltas un día vuelve a empezar, pero tu mejor racha se conserva.',
+    );
+    const racha = page.getByTestId('habit-item').first().getByTestId('habit-streak-current');
+    await expect(racha).toHaveAttribute('data-tour', 'racha');
+    await expect(racha).toHaveClass(/driver-active-element/);
+    await expect(page.locator('[data-tour="racha"]')).toHaveCount(1);
+    await expect(globo(page)).toBeInViewport({ ratio: 1 });
+
+    await siguiente(page).click();
+    await expect(progreso(page)).toHaveText(`${total} de ${total}`);
+    await expect(titulo(page)).toHaveText(ULTIMO_TITULO);
+  });
+
   test('CP-11 La guía se recorre con las flechas del teclado y conserva el foco', async ({ page }) => {
     // driver.js ignora las flechas mientras anima el cambio de paso (~400 ms, con Date.now y
     // requestAnimationFrame). Con el reloj simulado de Playwright cada animación se completa
@@ -115,16 +153,25 @@ test.describe('Guía en la primera visita', () => {
     await iniciarSesion(page);
     await page.clock.runFor(1000);
     const total = await totalDePasos(page);
+    // Al terminar de resaltar cada paso, el foco queda en "Siguiente" (no en la X).
+    await expect(siguiente(page)).toBeFocused();
 
     await page.keyboard.press('ArrowRight');
     await page.clock.runFor(1000);
     await expect(progreso(page)).toHaveText(`2 de ${total}`);
+    await expect(siguiente(page)).toBeFocused();
     await page.keyboard.press('ArrowRight');
     await page.clock.runFor(1000);
     await expect(progreso(page)).toHaveText(`3 de ${total}`);
     await page.keyboard.press('ArrowLeft');
     await page.clock.runFor(1000);
     await expect(progreso(page)).toHaveText(`2 de ${total}`);
+
+    // Enter sobre "Siguiente" (enfocado) también avanza.
+    await expect(siguiente(page)).toBeFocused();
+    await page.keyboard.press('Enter');
+    await page.clock.runFor(1000);
+    await expect(progreso(page)).toHaveText(`3 de ${total}`);
 
     // Tab no se escapa de la guía mientras está abierta.
     for (let i = 0; i < 4; i += 1) {
