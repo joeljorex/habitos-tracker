@@ -1,0 +1,215 @@
+﻿System.Management.Automation.RemoteException
+> habitos-tracker-web@0.1.0 test:unit
+> node --test "tests/unit/*.test.mjs"
+System.Management.Automation.RemoteException
+ÔûÂ claves
+  Ô£ö usan el prefijo versionado habitos.v1. (1.396ms)
+Ô£ö claves (2.3104ms)
+ÔûÂ h├íbitos y registros (localStorage)
+  Ô£ö sin datos devuelve listas vac├¡as (0.521ms)
+  Ô£ö guarda y lee de ida y vuelta (0.5644ms)
+  Ô£ö un JSON inv├ílido se trata como vac├¡o (0.3995ms)
+  Ô£ö un JSON que no es arreglo se trata como vac├¡o (0.3759ms)
+  Ô£ö descarta elementos con forma inv├ílida (0.3942ms)
+Ô£ö h├íbitos y registros (localStorage) (2.7306ms)
+ÔûÂ sesi├│n (sessionStorage)
+  Ô£ö guarda, lee y borra la sesi├│n (0.368ms)
+  Ô£ö una sesi├│n corrupta se trata como ausente (0.2211ms)
+Ô£ö sesi├│n (sessionStorage) (1.3533ms)
+ÔûÂ gu├¡a vista (localStorage)
+  Ô£ö se marca con "1" (0.1525ms)
+Ô£ö gu├¡a vista (localStorage) (0.2359ms)
+ÔûÂ almacenamiento no disponible
+  Ô£ö los errores del navegador no rompen la aplicaci├│n (0.292ms)
+  Ô£ö funciona aunque no existan localStorage ni sessionStorage (0.0942ms)
+Ô£ö almacenamiento no disponible (0.4613ms)
+ÔûÂ fechaLocal
+  Ô£ö devuelve el d├¡a calendario local como YYYY-MM-DD (0.8425ms)
+Ô£ö fechaLocal (1.8851ms)
+ÔûÂ validarNombre
+  Ô£ö rechaza el nombre vac├¡o (0.7639ms)
+  Ô£ö rechaza un nombre con solo espacios (0.1289ms)
+  Ô£ö acepta exactamente 60 caracteres (0.1509ms)
+  Ô£ö rechaza 61 caracteres (0.0978ms)
+  Ô£ö recorta los espacios antes de validar la longitud (0.0937ms)
+  Ô£ö cuenta caracteres y no unidades UTF-16 (emoji) (0.128ms)
+  Ô£ö rechaza un duplicado sin distinguir may├║sculas ni espacios extremos (0.1656ms)
+  Ô£ö acepta un nombre distinto y lo devuelve recortado (0.134ms)
+Ô£ö validarNombre (2.082ms)
+ÔûÂ crearHabito
+  Ô£ö crea el h├íbito con id, nombre recortado y fecha de creaci├│n (0.8794ms)
+  Ô£ö devuelve el error de validaci├│n y no crea nada (0.1138ms)
+  Ô£ö no modifica la lista de existentes (0.1442ms)
+  Ô£ö genera identificadores ├║nicos por defecto (2.4842ms)
+Ô£ö crearHabito (3.7967ms)
+ÔûÂ marcarHecho
+  Ô£ö agrega un registro (habitoId, fecha) sin modificar el arreglo original (0.1224ms)
+  Ô£ö es idempotente: como m├íximo un registro por (habitoId, fecha) (0.0731ms)
+  Ô£ö permite el mismo d├¡a en otro h├íbito y otro d├¡a en el mismo h├íbito (0.0539ms)
+Ô£ö marcarHecho (0.3389ms)
+ÔûÂ estaHechoHoy
+  Ô£ö es verdadero solo si hay un registro del h├íbito con la fecha de hoy (0.0644ms)
+Ô£ö estaHechoHoy (0.1166ms)
+ÔûÂ diasCumplidos
+  Ô£ö cuenta fechas distintas del h├íbito (0.1192ms)
+Ô£ö diasCumplidos (0.1741ms)
+ÔûÂ eliminarHabito
+  Ô£ö elimina el h├íbito y sus registros en cascada, sin tocar los dem├ís (0.154ms)
+Ô£ö eliminarHabito (0.2066ms)
+ÔûÂ ordenarPorCreacion
+  Ô£ö ordena por fecha de creaci├│n sin modificar la entrada (0.1074ms)
+Ô£ö ordenarPorCreacion (0.1545ms)
+ÔûÂ Casos de referencia del contrato (V01ÔÇôV13)
+  Ô£ö V01 FR-006 sin registros: hoy 2026-09-10, [] ÔåÆ actual 0, mejor 0 (1.2574ms)
+  Ô£ö V02 FR-002 cumplido hoy: hoy 2026-09-10, [2026-09-10] ÔåÆ actual 1, mejor 1 (0.1554ms)
+  Ô£ö V03 FR-002 viva desde ayer: hoy 2026-09-10, [2026-09-09] ÔåÆ actual 1, mejor 1 (0.0911ms)
+  Ô£ö V04 FR-002 rota: hoy 2026-09-10, [2026-09-08] ÔåÆ actual 0, mejor 1 (0.0956ms)
+  Ô£ö V05 FR-002 tres d├¡as seguidos: hoy 2026-09-10, [2026-09-08, 2026-09-09, 2026-09-10] ÔåÆ actual 3, mejor 3 (0.1156ms)
+  Ô£ö V06 CP-04 d├¡a saltado: hoy 2026-09-04, [2026-09-01, 2026-09-02, 2026-09-04] ÔåÆ actual 1, mejor 2 (0.0966ms)
+  Ô£ö V07 FR-004 duplicados: hoy 2026-09-10, [2026-09-10, 2026-09-10, 2026-09-09] ÔåÆ actual 2, mejor 2 (0.129ms)
+  Ô£ö V08 FR-005 futuro ignorado: hoy 2026-09-10, [2026-09-10, 2026-09-11] ÔåÆ actual 1, mejor 1 (0.0926ms)
+  Ô£ö V09 FR-008 bisiesto: hoy 2028-03-01, [2028-02-28, 2028-02-29, 2028-03-01] ÔåÆ actual 3, mejor 3 (0.1069ms)
+  Ô£ö V10 FR-008 a├▒o no bisiesto: hoy 2026-03-01, [2026-02-28, 2026-03-01] ÔåÆ actual 2, mejor 2 (0.1245ms)
+  Ô£ö V11 FR-008 cambio de a├▒o: hoy 2027-01-01, [2026-12-31, 2027-01-01] ÔåÆ actual 2, mejor 2 (0.1067ms)
+  Ô£ö V12 FR-003 mejor hist├│rica: hoy 2026-09-10, [2026-09-01, 2026-09-02, 2026-09-03, 2026-09-04, 2026-09-05, 2026-09-09, 2026-09-10] ÔåÆ actual 2, mejor 5 (0.0904ms)
+  Ô£ö V13 FR-007 desordenadas: hoy 2026-09-10, [2026-09-10, 2026-09-08, 2026-09-09] ÔåÆ actual 3, mejor 3 (0.6145ms)
+Ô£ö Casos de referencia del contrato (V01ÔÇôV13) (4.2069ms)
+ÔûÂ Casos adicionales
+  Ô£ö es pura: no modifica ni reordena las fechas recibidas (0.1433ms)
+  Ô£ö el cambio de horario de verano no afecta (8 de marzo de 2026 en EE. UU.) (0.0823ms)
+  Ô£ö con un "hoy" inv├ílido devuelve 0 y 0 (0.0572ms)
+  Ô£ö ignora fechas con formato inv├ílido (0.0747ms)
+Ô£ö Casos adicionales (0.5139ms)
+Ô£ö sirve index.html en la ra├¡z con tipo text/html (115.7958ms)
+Ô£ö env├¡a JavaScript y CSS con su tipo MIME (5.1652ms)
+Ô£ö responde 404 si el archivo no existe (1.9961ms)
+Ô£ö redirige un directorio sin barra final y sirve su index.html (3.5395ms)
+Ô£ö bloquea rutas fuera de la carpeta servida (path traversal) (5.444ms)
+Ô£ö solo acepta GET y HEAD (3.8726ms)
+ÔûÂ resolverPasos
+  Ô£ö conserva en orden los pasos cuyo elemento existe (0.9978ms)
+  Ô£ö omite el paso cuyo elemento no existe y no tiene alternativa (0.1747ms)
+  Ô£ö usa la alternativa cuando el elemento no existe (0.1168ms)
+  Ô£ö omite el paso si tampoco existe el elemento de la alternativa (0.11ms)
+  Ô£ö es pura: no modifica los pasos recibidos (0.2152ms)
+Ô£ö resolverPasos (2.5217ms)
+ÔûÂ registro PASOS
+  Ô£ö empieza con nuevo-habito, lista y marcar, y termina con ver-guia (0.2004ms)
+  Ô£ö usa los textos exactos del contrato (0.137ms)
+  Ô£ö cada ancla tiene la forma [data-tour="<id>"] y los id son ├║nicos (0.1235ms)
+Ô£ö registro PASOS (0.6781ms)
+ÔûÂ agregarPaso
+  Ô£ö inserta el paso justo antes del id indicado (0.2352ms)
+  Ô£ö lo agrega al final si no se indica antesDe o si ese id no existe (0.2476ms)
+  Ô£ö no duplica un id ya registrado (0.1587ms)
+Ô£ö agregarPaso (0.8767ms)
+Ôä╣ tests 65
+Ôä╣ suites 18
+Ôä╣ pass 65
+Ôä╣ fail 0
+Ôä╣ cancelled 0
+Ôä╣ skipped 0
+Ôä╣ todo 0
+Ôä╣ duration_ms 235.1157
+System.Management.Automation.RemoteException
+> habitos-tracker-web@0.1.0 carga:smoke
+> node scripts/carga.mjs tests/carga/smoke.js
+System.Management.Automation.RemoteException
+[carga] levantando el panel en http://127.0.0.1:4180
+[panel] Sirviendo C:\Users\Quetzal\Downloads\Actividad 1.2 - CICD (entrega)\habitos-tracker-jorge\web en http://127.0.0.1:4180/
+[carga] ejecutando tests/carga/smoke.js con k6
+System.Management.Automation.RemoteException
+         /\      Grafana   /ÔÇ¥ÔÇ¥/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ÔÇ¥ÔÇ¥\ 
+  /          \   |   (  |  (ÔÇ¥)  |
+ / __________ \  |_|\_\  \_____/ 
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+     execution: local
+        script: tests/carga/smoke.js
+        output: -
+System.Management.Automation.RemoteException
+     scenarios: (100.00%) 1 scenario, 6 max VUs, 40s max duration (incl. graceful stop):
+              * default: 6 looping VUs for 10s (gracefulStop: 30s)
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+running (01.0s), 6/6 VUs, 3243 complete and 0 interrupted iterations
+default   [  10% ] 6 VUs  01.0s/10s
+System.Management.Automation.RemoteException
+running (02.0s), 6/6 VUs, 6655 complete and 0 interrupted iterations
+default   [  20% ] 6 VUs  02.0s/10s
+System.Management.Automation.RemoteException
+running (03.0s), 6/6 VUs, 10035 complete and 0 interrupted iterations
+default   [  30% ] 6 VUs  03.0s/10s
+System.Management.Automation.RemoteException
+running (04.0s), 6/6 VUs, 13326 complete and 0 interrupted iterations
+default   [  40% ] 6 VUs  04.0s/10s
+System.Management.Automation.RemoteException
+running (05.0s), 6/6 VUs, 16603 complete and 0 interrupted iterations
+default   [  50% ] 6 VUs  05.0s/10s
+System.Management.Automation.RemoteException
+running (06.0s), 6/6 VUs, 19808 complete and 0 interrupted iterations
+default   [  60% ] 6 VUs  06.0s/10s
+System.Management.Automation.RemoteException
+running (07.0s), 6/6 VUs, 23194 complete and 0 interrupted iterations
+default   [  70% ] 6 VUs  07.0s/10s
+System.Management.Automation.RemoteException
+running (08.0s), 6/6 VUs, 26661 complete and 0 interrupted iterations
+default   [  80% ] 6 VUs  08.0s/10s
+System.Management.Automation.RemoteException
+running (09.0s), 6/6 VUs, 30087 complete and 0 interrupted iterations
+default   [  90% ] 6 VUs  09.0s/10s
+System.Management.Automation.RemoteException
+running (10.0s), 6/6 VUs, 33535 complete and 0 interrupted iterations
+default   [ 100% ] 6 VUs  10.0s/10s
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+  Ôûê THRESHOLDS 
+System.Management.Automation.RemoteException
+    checks
+    Ô£ô 'rate>0.99' rate=100.00%
+System.Management.Automation.RemoteException
+    http_req_duration
+    Ô£ô 'p(95)<5000' p(95)=3.21ms
+System.Management.Automation.RemoteException
+    http_req_failed
+    Ô£ô 'rate<0.01' rate=0.00%
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+  Ôûê TOTAL RESULTS 
+System.Management.Automation.RemoteException
+    checks_total.......: 67092   6708.338113/s
+    checks_succeeded...: 100.00% 67092 out of 67092
+    checks_failed......: 0.00%   0 out of 67092
+System.Management.Automation.RemoteException
+    Ô£ô responde 200
+    Ô£ô responde en menos de 5 s
+System.Management.Automation.RemoteException
+    HTTP
+    http_req_duration..............: avg=1.73ms min=0s med=1.62ms p(90)=2.76ms p(95)=3.21ms max=5.98ms
+      { expected_response:true }...: avg=1.73ms min=0s med=1.62ms p(90)=2.76ms p(95)=3.21ms max=5.98ms
+    http_req_failed................: 0.00%  0 out of 33546
+    http_reqs......................: 33546  3354.169056/s
+System.Management.Automation.RemoteException
+    EXECUTION
+    iteration_duration.............: avg=1.78ms min=0s med=1.66ms p(90)=2.8ms  p(95)=3.26ms max=6.75ms
+    iterations.....................: 33546  3354.169056/s
+    vus............................: 6      min=6          max=6
+    vus_max........................: 6      min=6          max=6
+System.Management.Automation.RemoteException
+    NETWORK
+    data_received..................: 168 MB 17 MB/s
+    data_sent......................: 2.3 MB 235 kB/s
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+running (10.0s), 0/6 VUs, 33546 complete and 0 interrupted iterations
+default Ô£ô [ 100% ] 6 VUs  10s
+[carga] panel apagado
+[feature/019-evidencia-jhm 9ee87c3] test(carga): evidencia de la corrida de JHM en su equipo
+ 5 files changed, 434 insertions(+), 214 deletions(-)
+ create mode 100644 docs/evidencia/carga-jhm-maquina-jorge.png
+ create mode 100644 docs/evidencia/carga-jhm-maquina-jorge.txt
+ create mode 100644 docs/evidencia/notas-jorge.md
