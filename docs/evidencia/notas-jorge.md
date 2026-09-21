@@ -2,3 +2,6 @@
 
 Corrida del hook de pre-commit y de la prueba de carga en la maquina de Jorge.
 
+
+Segundo commit: se omite el hook con --no-verify.
+
