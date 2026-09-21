@@ -1,0 +1,216 @@
+﻿
+> habitos-tracker-web@0.1.0 carga:jhm
+> node scripts/carga.mjs tests/carga/jhm-prueba.js
+
+[carga] levantando el panel en http://127.0.0.1:4180
+[panel] Sirviendo C:\Users\Quetzal\Downloads\Actividad 1.2 - CICD (entrega)\habitos-tracker-jorge\web en http://127.0.0.1:4180/
+[carga] ejecutando tests/carga/jhm-prueba.js con k6
+
+         /\      Grafana   /ÔÇ¥ÔÇ¥/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ÔÇ¥ÔÇ¥\ 
+  /          \   |   (  |  (ÔÇ¥)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: tests/carga/jhm-prueba.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 25 max VUs, 1m15s max duration (incl. graceful stop):
+              * ritmo_constante: 12.00 iterations/s for 45s (maxVUs: 15-25, gracefulStop: 30s)
+
+
+running (0m01.0s), 12/15 VUs, 0 complete and 0 interrupted iterations
+ritmo_constante   [   2% ] 12/15 VUs  01.0s/45s  12.00 iters/s
+
+running (0m02.0s), 12/15 VUs, 12 complete and 0 interrupted iterations
+ritmo_constante   [   4% ] 12/15 VUs  02.0s/45s  12.00 iters/s
+
+running (0m03.0s), 12/15 VUs, 24 complete and 0 interrupted iterations
+ritmo_constante   [   7% ] 12/15 VUs  03.0s/45s  12.00 iters/s
+
+running (0m04.0s), 12/15 VUs, 36 complete and 0 interrupted iterations
+ritmo_constante   [   9% ] 12/15 VUs  04.0s/45s  12.00 iters/s
+
+running (0m05.0s), 12/15 VUs, 48 complete and 0 interrupted iterations
+ritmo_constante   [  11% ] 12/15 VUs  05.0s/45s  12.00 iters/s
+
+running (0m06.0s), 12/15 VUs, 60 complete and 0 interrupted iterations
+ritmo_constante   [  13% ] 12/15 VUs  06.0s/45s  12.00 iters/s
+
+running (0m07.0s), 12/15 VUs, 72 complete and 0 interrupted iterations
+ritmo_constante   [  16% ] 12/15 VUs  07.0s/45s  12.00 iters/s
+
+running (0m08.0s), 12/15 VUs, 84 complete and 0 interrupted iterations
+ritmo_constante   [  18% ] 12/15 VUs  08.0s/45s  12.00 iters/s
+
+running (0m09.0s), 12/15 VUs, 96 complete and 0 interrupted iterations
+ritmo_constante   [  20% ] 12/15 VUs  09.0s/45s  12.00 iters/s
+
+running (0m10.0s), 12/15 VUs, 108 complete and 0 interrupted iterations
+ritmo_constante   [  22% ] 12/15 VUs  10.0s/45s  12.00 iters/s
+
+running (0m11.0s), 12/15 VUs, 120 complete and 0 interrupted iterations
+ritmo_constante   [  24% ] 12/15 VUs  11.0s/45s  12.00 iters/s
+
+running (0m12.0s), 12/15 VUs, 132 complete and 0 interrupted iterations
+ritmo_constante   [  27% ] 12/15 VUs  12.0s/45s  12.00 iters/s
+
+running (0m13.0s), 12/15 VUs, 144 complete and 0 interrupted iterations
+ritmo_constante   [  29% ] 12/15 VUs  13.0s/45s  12.00 iters/s
+
+running (0m14.0s), 12/15 VUs, 156 complete and 0 interrupted iterations
+ritmo_constante   [  31% ] 12/15 VUs  14.0s/45s  12.00 iters/s
+
+running (0m15.0s), 12/15 VUs, 168 complete and 0 interrupted iterations
+ritmo_constante   [  33% ] 12/15 VUs  15.0s/45s  12.00 iters/s
+
+running (0m16.0s), 12/15 VUs, 180 complete and 0 interrupted iterations
+ritmo_constante   [  36% ] 12/15 VUs  16.0s/45s  12.00 iters/s
+
+running (0m17.0s), 12/15 VUs, 192 complete and 0 interrupted iterations
+ritmo_constante   [  38% ] 12/15 VUs  17.0s/45s  12.00 iters/s
+
+running (0m18.0s), 12/15 VUs, 204 complete and 0 interrupted iterations
+ritmo_constante   [  40% ] 12/15 VUs  18.0s/45s  12.00 iters/s
+
+running (0m19.0s), 12/15 VUs, 216 complete and 0 interrupted iterations
+ritmo_constante   [  42% ] 12/15 VUs  19.0s/45s  12.00 iters/s
+
+running (0m20.0s), 12/15 VUs, 228 complete and 0 interrupted iterations
+ritmo_constante   [  44% ] 12/15 VUs  20.0s/45s  12.00 iters/s
+
+running (0m21.0s), 12/15 VUs, 240 complete and 0 interrupted iterations
+ritmo_constante   [  47% ] 12/15 VUs  21.0s/45s  12.00 iters/s
+
+running (0m22.0s), 12/15 VUs, 252 complete and 0 interrupted iterations
+ritmo_constante   [  49% ] 12/15 VUs  22.0s/45s  12.00 iters/s
+
+running (0m23.0s), 12/15 VUs, 264 complete and 0 interrupted iterations
+ritmo_constante   [  51% ] 12/15 VUs  23.0s/45s  12.00 iters/s
+
+running (0m24.0s), 12/15 VUs, 276 complete and 0 interrupted iterations
+ritmo_constante   [  53% ] 12/15 VUs  24.0s/45s  12.00 iters/s
+
+running (0m25.0s), 12/15 VUs, 288 complete and 0 interrupted iterations
+ritmo_constante   [  56% ] 12/15 VUs  25.0s/45s  12.00 iters/s
+
+running (0m26.0s), 12/15 VUs, 300 complete and 0 interrupted iterations
+ritmo_constante   [  58% ] 12/15 VUs  26.0s/45s  12.00 iters/s
+
+running (0m27.0s), 12/15 VUs, 312 complete and 0 interrupted iterations
+ritmo_constante   [  60% ] 12/15 VUs  27.0s/45s  12.00 iters/s
+
+running (0m28.0s), 12/15 VUs, 324 complete and 0 interrupted iterations
+ritmo_constante   [  62% ] 12/15 VUs  28.0s/45s  12.00 iters/s
+
+running (0m29.0s), 12/15 VUs, 336 complete and 0 interrupted iterations
+ritmo_constante   [  64% ] 12/15 VUs  29.0s/45s  12.00 iters/s
+
+running (0m30.0s), 12/15 VUs, 348 complete and 0 interrupted iterations
+ritmo_constante   [  67% ] 12/15 VUs  30.0s/45s  12.00 iters/s
+
+running (0m31.0s), 12/15 VUs, 360 complete and 0 interrupted iterations
+ritmo_constante   [  69% ] 12/15 VUs  31.0s/45s  12.00 iters/s
+
+running (0m32.0s), 12/15 VUs, 372 complete and 0 interrupted iterations
+ritmo_constante   [  71% ] 12/15 VUs  32.0s/45s  12.00 iters/s
+
+running (0m33.0s), 12/15 VUs, 384 complete and 0 interrupted iterations
+ritmo_constante   [  73% ] 12/15 VUs  33.0s/45s  12.00 iters/s
+
+running (0m34.0s), 12/15 VUs, 396 complete and 0 interrupted iterations
+ritmo_constante   [  76% ] 12/15 VUs  34.0s/45s  12.00 iters/s
+
+running (0m35.0s), 12/15 VUs, 408 complete and 0 interrupted iterations
+ritmo_constante   [  78% ] 12/15 VUs  35.0s/45s  12.00 iters/s
+
+running (0m36.0s), 12/15 VUs, 420 complete and 0 interrupted iterations
+ritmo_constante   [  80% ] 12/15 VUs  36.0s/45s  12.00 iters/s
+
+running (0m37.0s), 12/15 VUs, 432 complete and 0 interrupted iterations
+ritmo_constante   [  82% ] 12/15 VUs  37.0s/45s  12.00 iters/s
+
+running (0m38.0s), 12/15 VUs, 444 complete and 0 interrupted iterations
+ritmo_constante   [  84% ] 12/15 VUs  38.0s/45s  12.00 iters/s
+
+running (0m39.0s), 12/15 VUs, 456 complete and 0 interrupted iterations
+ritmo_constante   [  87% ] 12/15 VUs  39.0s/45s  12.00 iters/s
+
+running (0m40.0s), 12/15 VUs, 468 complete and 0 interrupted iterations
+ritmo_constante   [  89% ] 12/15 VUs  40.0s/45s  12.00 iters/s
+
+running (0m41.0s), 12/15 VUs, 480 complete and 0 interrupted iterations
+ritmo_constante   [  91% ] 12/15 VUs  41.0s/45s  12.00 iters/s
+
+running (0m42.0s), 12/15 VUs, 492 complete and 0 interrupted iterations
+ritmo_constante   [  93% ] 12/15 VUs  42.0s/45s  12.00 iters/s
+
+running (0m43.0s), 12/15 VUs, 504 complete and 0 interrupted iterations
+ritmo_constante   [  96% ] 12/15 VUs  43.0s/45s  12.00 iters/s
+
+running (0m44.0s), 12/15 VUs, 516 complete and 0 interrupted iterations
+ritmo_constante   [  98% ] 12/15 VUs  44.0s/45s  12.00 iters/s
+
+running (0m45.0s), 12/15 VUs, 528 complete and 0 interrupted iterations
+ritmo_constante   [ 100% ] 12/15 VUs  45.0s/45s  12.00 iters/s
+
+==============================================================================
+  Prueba de carga del panel ÔÇö JHM (Jorge Humberto Mart├¡nez Delgado)
+==============================================================================
+  Fecha:    2026-09-21T03:53:32.622Z
+  Objetivo: http://127.0.0.1:4180
+  Duraci├│n: 45.92 s
+------------------------------------------------------------------------------
+  checks  (rate)
+      100 % (2700 de 2700)   [rate>0.99 ok]
+  data_received  (counter)
+      total 12.94 MB ┬À 295 468.81/s
+  data_sent  (counter)
+      total 129.73 kB ┬À 2 892.83/s
+  estilos_bytes  (gauge)
+      actual 15.66 kB ┬À min 15.66 kB ┬À max 15.66 kB
+  estilos_duracion  (trend)
+      avg 0.86 ms ┬À min 0 ms ┬À med 0.89 ms ┬À p(90) 1.52 ms ┬À p(95) 1.86 ms ┬À p(99) 2.12 ms ┬À max 3.31 ms   [p(95)<5000 ok]
+  http_req_blocked  (trend)
+      avg 0 ms ┬À min 0 ms ┬À med 0 ms ┬À p(90) 0 ms ┬À p(95) 0 ms ┬À p(99) 0 ms ┬À max 1.02 ms
+  http_req_connecting  (trend)
+      avg 0 ms ┬À min 0 ms ┬À med 0 ms ┬À p(90) 0 ms ┬À p(95) 0 ms ┬À p(99) 0 ms ┬À max 1.02 ms
+  http_req_duration  (trend)
+      avg 0.98 ms ┬À min 0 ms ┬À med 0.9 ms ┬À p(90) 1.69 ms ┬À p(95) 1.85 ms ┬À p(99) 2.22 ms ┬À max 13.17 ms   [p(95)<5000 ok, avg<2000 ok]
+  http_req_duration{expected_response:true}  (trend)
+      avg 0.98 ms ┬À min 0 ms ┬À med 0.9 ms ┬À p(90) 1.69 ms ┬À p(95) 1.85 ms ┬À p(99) 2.22 ms ┬À max 13.17 ms
+  http_req_duration{recurso:estilos}  (trend)
+      avg 0.86 ms ┬À min 0 ms ┬À med 0.89 ms ┬À p(90) 1.52 ms ┬À p(95) 1.86 ms ┬À p(99) 2.12 ms ┬À max 3.31 ms   [p(95)<5000 ok]
+  http_req_duration{recurso:rachas}  (trend)
+      avg 0.66 ms ┬À min 0 ms ┬À med 0.5 ms ┬À p(90) 1.01 ms ┬À p(95) 1.43 ms ┬À p(99) 2.24 ms ┬À max 13.17 ms   [p(95)<5000 ok]
+  http_req_failed  (rate)
+      0 % (0 de 1620)   [rate<0.01 ok]
+  http_req_receiving  (trend)
+      avg 0.27 ms ┬À min 0 ms ┬À med 0 ms ┬À p(90) 0.93 ms ┬À p(95) 1 ms ┬À p(99) 1.2 ms ┬À max 4.28 ms
+  http_req_sending  (trend)
+      avg 0 ms ┬À min 0 ms ┬À med 0 ms ┬À p(90) 0 ms ┬À p(95) 0 ms ┬À p(99) 0 ms ┬À max 2.07 ms
+  http_req_tls_handshaking  (trend)
+      avg 0 ms ┬À min 0 ms ┬À med 0 ms ┬À p(90) 0 ms ┬À p(95) 0 ms ┬À p(99) 0 ms ┬À max 0 ms
+  http_req_waiting  (trend)
+      avg 0.7 ms ┬À min 0 ms ┬À med 0.53 ms ┬À p(90) 1.18 ms ┬À p(95) 1.52 ms ┬À p(99) 2.03 ms ┬À max 8.89 ms
+  http_reqs  (counter)
+      total 1 620 ┬À 35.28/s
+  iteration_duration  (trend)
+      avg 1 003.46 ms ┬À min 1 001.89 ms ┬À med 1 003.41 ms ┬À p(90) 1 003.93 ms ┬À p(95) 1 004.13 ms ┬À p(99) 1 004.9 ms ┬À max 1 018.28 ms   [p(95)<6000 ok]
+  iterations  (counter)
+      total 540 ┬À 11.76/s
+  rachas_disponible  (rate)
+      100 % (540 de 540)
+  rachas_peticiones  (counter)
+      total 540 ┬À 11.76/s
+  vus  (gauge)
+      actual 12 ┬À min 12 ┬À max 12
+  vus_max  (gauge)
+      actual 15 ┬À min 15 ┬À max 15
+==============================================================================
+
+running (0m45.9s), 00/15 VUs, 540 complete and 0 interrupted iterations
+ritmo_constante Ô£ô [ 100% ] 00/15 VUs  45s  12.00 iters/s
+[carga] panel apagado
