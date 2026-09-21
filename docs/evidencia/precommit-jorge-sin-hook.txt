@@ -1,0 +1,4 @@
+﻿[feature/019-evidencia-jhm a8ac376] docs(evidencia): commit sin ejecutar el hook
+ 3 files changed, 218 insertions(+)
+ create mode 100644 docs/evidencia/precommit-jorge-con-hook.png
+ create mode 100644 docs/evidencia/precommit-jorge-con-hook.txt
