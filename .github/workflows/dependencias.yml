@@ -1,0 +1,103 @@
+# Análisis de vulnerabilidades en las dependencias (Actividad 3.1, módulo extra — spec 008).
+#
+# OSV-Scanner (Google) consulta la base de datos OSV.dev, que agrega los avisos de GitHub, npm y
+# Debian entre otros. Se eligió frente a Snyk porque no necesita cuenta ni token: cualquiera del
+# equipo puede correrlo igual en su máquina (`npm run seguridad:dependencias`) y en el servidor.
+name: Dependencias
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - package.json
+      - package-lock.json
+      - .github/workflows/dependencias.yml
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Lunes 08:15 (America/Hermosillo = UTC-7). Una vulnerabilidad nueva aparece sin que nadie toque
+    # el código, así que el análisis también corre solo.
+    - cron: "15 15 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write # para subir el resultado a la pestaña Security del repositorio
+
+concurrency:
+  group: dependencias-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  osv:
+    name: OSV-Scanner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener el código
+        uses: actions/checkout@v7
+
+      - name: Analizar el candado de dependencias
+        id: analisis
+        continue-on-error: true # el reporte se publica aunque haya hallazgos
+        uses: google/osv-scanner-action/osv-scanner-action@v2.6.0
+        with:
+          scan-args: |-
+            --format=sarif
+            --output-file=resultados.sarif
+            --lockfile=package-lock.json
+
+      - name: Publicar el reporte en la pestaña Security
+        if: always() && hashFiles('resultados.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: resultados.sarif
+          category: osv-scanner
+
+      - name: Guardar el reporte como artefacto
+        if: always() && hashFiles('resultados.sarif') != ''
+        uses: actions/upload-artifact@v5
+        with:
+          name: osv-scanner-sarif
+          path: resultados.sarif
+          retention-days: 30
+
+      - name: Resumen legible
+        if: always()
+        shell: bash
+        run: |
+          if [ ! -f resultados.sarif ]; then
+            echo "No se generó reporte: revisar el paso de análisis." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          total=$(node -e "const r=require('./resultados.sarif');console.log((r.runs?.[0]?.results??[]).length)")
+          echo "## OSV-Scanner" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Vulnerabilidades encontradas en package-lock.json: **$total**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "El detalle queda en la pestaña *Security → Code scanning* y en el artefacto \`osv-scanner-sarif\`." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fallar si hay vulnerabilidades
+        if: steps.analisis.outcome == 'failure'
+        run: |
+          echo "OSV-Scanner encontró vulnerabilidades. Revisa el resumen y el reporte SARIF."
+          exit 1
+
+  auditoria-npm:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener el código
+        uses: actions/checkout@v7
+
+      - name: Preparar Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # Segunda opinión con la herramienta que ya viene en Node: nivel alto o peor rompe el flujo.
+      - name: Auditar dependencias
+        run: npm audit --audit-level=high

@@ -1,0 +1,59 @@
+# Actualización automática de dependencias (Actividad 3.1, módulo extra — spec 008).
+#
+# Dependabot abre un pull request cuando una dependencia tiene versión nueva o vulnerabilidad
+# conocida. Entra por el mismo flujo que cualquier cambio: CI, revisión y merge a develop.
+version: 2
+
+updates:
+  # Dependencias de Node (Playwright, husky, driver.js).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: America/Hermosillo
+    open-pull-requests-limit: 5
+    target-branch: develop
+    labels:
+      - dependencias
+      - seguridad
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
+    groups:
+      # Un solo pull request para los parches: menos ruido, misma seguridad.
+      parches:
+        patterns: ["*"]
+        update-types: ["patch"]
+
+  # Acciones usadas en los flujos de trabajo (checkout, setup-node, upload-artifact…).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: America/Hermosillo
+    open-pull-requests-limit: 3
+    target-branch: develop
+    labels:
+      - dependencias
+      - ci
+    commit-message:
+      prefix: "chore(ci)"
+
+  # Imágenes de los stacks locales (SonarQube y monitoreo).
+  - package-ecosystem: docker-compose
+    directories:
+      - /infra/monitoreo
+      - /infra/sonarqube
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    target-branch: develop
+    labels:
+      - dependencias
+      - infraestructura
+    commit-message:
+      prefix: "chore(infra)"

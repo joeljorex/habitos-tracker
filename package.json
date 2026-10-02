@@ -24,6 +24,7 @@
     "monitoreo:apagar": "docker compose -f infra/monitoreo/docker-compose.yml down",
     "monitoreo:estado": "docker compose -f infra/monitoreo/docker-compose.yml ps",
     "monitoreo:validar": "node scripts/monitoreo-validar.mjs",
+    "seguridad:dependencias": "node scripts/osv-escaneo.mjs",
     "prepare": "husky"
   },
   "devDependencies": {
