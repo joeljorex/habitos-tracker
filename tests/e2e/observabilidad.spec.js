@@ -1,4 +1,4 @@
-// Visor de observabilidad: métricas del panel y sus alarmas (spec 005).
+// Visor de observabilidad: métricas con alarmas y trazabilidad (specs 005 y 006).
 import { expect, test } from '@playwright/test';
 import { CUENTA_DEMO, iniciarSesion, sembrar } from './helpers.js';
 
@@ -13,7 +13,7 @@ async function abrirVisor(page, pestana) {
 }
 
 test.describe('visor de observabilidad', () => {
-  test('@smoke se abre desde el encabezado y se cierra con Escape', async ({ page }) => {
+  test('@smoke se abre, cambia de pestaña y se cierra con Escape', async ({ page }) => {
     await sembrar(page);
     await iniciarSesion(page);
 
@@ -22,7 +22,11 @@ test.describe('visor de observabilidad', () => {
 
     await abrirVisor(page);
     await expect(page.getByTestId('visor-pestana-metricas')).toHaveAttribute('aria-selected', 'true');
-    await expect(page.getByTestId('visor-panel-metricas')).toBeVisible();
+    await expect(page.getByTestId('visor-panel-trazabilidad')).toBeHidden();
+
+    await page.getByTestId('visor-pestana-trazabilidad').click();
+    await expect(page.getByTestId('visor-panel-trazabilidad')).toBeVisible();
+    await expect(page.getByTestId('visor-panel-metricas')).toBeHidden();
 
     await page.keyboard.press('Escape');
     await expect(visor).toBeHidden();
@@ -49,7 +53,7 @@ test.describe('visor de observabilidad', () => {
     await expect(prometheus).toContainText('# TYPE habitos_operacion_duracion_ms summary');
   });
 
-  test('un acceso rechazado se cuenta y levanta la alarma de accesos', async ({ page }) => {
+  test('un acceso rechazado se cuenta y levanta el aviso de accesos', async ({ page }) => {
     await sembrar(page);
     await page.goto('./');
     // Cuatro intentos fallidos: el mínimo que la regla exige para opinar.
@@ -66,5 +70,58 @@ test.describe('visor de observabilidad', () => {
     await expect(regla.getByTestId('alarma-estado')).toHaveText('Alarma');
     await expect(regla.getByTestId('alarma-valor')).toHaveText('80.0 %');
     await expect(page.getByTestId('ver-observabilidad')).toHaveAttribute('data-estado', 'alarma');
+  });
+
+  test('la trazabilidad une cada registro con la operación que lo produjo', async ({ page }) => {
+    await sembrar(page);
+    await iniciarSesion(page);
+    await page.getByTestId('habit-name').fill('Leer 20 minutos');
+    await page.getByTestId('habit-submit').click();
+
+    await abrirVisor(page, 'trazabilidad');
+
+    const trazas = page.getByTestId('traza-item');
+    await expect(trazas.filter({ hasText: 'crear hábito' })).toHaveCount(1);
+    // La traza de creación guarda sus pasos: leer, validar y guardar.
+    const trazaCrear = trazas.filter({ hasText: 'crear hábito' }).first();
+    await expect(trazaCrear.getByTestId('traza-span')).toHaveCount(3);
+
+    await expect(page.getByTestId('bitacora-fila').filter({ hasText: 'hábito creado' })).toHaveCount(1);
+
+    // Cada registro guarda el identificador de la traza que lo produjo, no un guion.
+    const filaCreado = page.getByTestId('bitacora-fila').filter({ hasText: 'hábito creado' }).first();
+    const idTraza = (await filaCreado.locator('.visor-celda-traza').innerText()).trim();
+    expect(idTraza).toMatch(/^[0-9a-f]{8}$/);
+
+    // Al elegir la traza, la bitácora se filtra por ese mismo identificador.
+    await trazaCrear.getByTestId('traza-abrir').click();
+    await expect(page.getByTestId('traza-seleccionada')).toContainText(idTraza);
+    await expect(page.getByTestId('bitacora-fila')).toHaveCount(1);
+    await expect(page.getByTestId('bitacora-fila').filter({ hasText: 'sesión iniciada' })).toHaveCount(0);
+
+    await page.getByTestId('traza-quitar-filtro').click();
+    await expect(page.getByTestId('bitacora-fila').filter({ hasText: 'sesión iniciada' })).toHaveCount(1);
+
+    // El filtro por nivel deja solo los avisos: aquí no hay ninguno todavía.
+    await page.getByTestId('bitacora-nivel').selectOption('error');
+    await expect(page.getByTestId('bitacora-vacia')).toBeVisible();
+  });
+
+  test('el visor se recorre con el teclado', async ({ page }) => {
+    await sembrar(page);
+    await iniciarSesion(page);
+    await abrirVisor(page);
+
+    await page.getByTestId('visor-pestana-metricas').focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.getByTestId('visor-pestana-trazabilidad')).toBeFocused();
+    await expect(page.getByTestId('visor-panel-trazabilidad')).toBeVisible();
+
+    await page.keyboard.press('End');
+    await expect(page.getByTestId('visor-pestana-trazabilidad')).toBeFocused();
+    await expect(page.getByTestId('visor-panel-trazabilidad')).toBeVisible();
+
+    await page.keyboard.press('Home');
+    await expect(page.getByTestId('visor-pestana-metricas')).toBeFocused();
   });
 });
