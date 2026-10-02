@@ -1,8 +1,8 @@
-// Orquestación de la interfaz del panel (specs 001, 002, 004, 005 y 006).
+// Orquestación de la interfaz del panel (specs 001, 002, 004, 005, 006 y 007).
 //
 // Solo presenta y conecta eventos: las reglas viven en dominio/, la persistencia en almacen.js,
 // la autenticación simulada en auth.js, la guía en tour/ y la observabilidad en observabilidad/.
-// Cada acción de la persona queda medida (métricas) y trazada (trazas y bitácora).
+// Cada acción de la persona queda medida (métricas), trazada (trazas y bitácora) y auditada.
 import {
   crearHabito,
   diasCumplidos,
@@ -17,6 +17,7 @@ import { guardarHabitos, guardarRegistros, leerHabitos, leerRegistros } from './
 import { cerrarSesion, iniciarSesion, sesionActual } from './auth.js';
 import { cerrarTour, iniciarTour } from './tour/tour.js';
 import { crear, porTestId } from './ui/dom.js';
+import { registrarEvento } from './observabilidad/auditoria.js';
 import { aviso, error as registrarError, info } from './observabilidad/bitacora.js';
 import { ahoraMs } from './observabilidad/deposito.js';
 import { incrementar, observar } from './observabilidad/metricas.js';
@@ -59,7 +60,6 @@ function anunciar(mensaje) {
 
 // ─── Observabilidad ────────────────────────────────────────────────────────────────────────
 
-/** Quién está usando el panel; "anonimo" si no hay sesión. */
 const actorActual = () => sesionActual()?.email ?? 'anonimo';
 
 /**
@@ -81,6 +81,13 @@ function accion(nombre, operacion, atributos = {}) {
   } finally {
     observar('habitos_operacion_duracion_ms', ahoraMs() - inicio, { operacion: nombre });
   }
+}
+
+/** Registra un evento auditable. Es asíncrono (hash SHA-256) y nunca debe bloquear la interfaz. */
+function auditar(datos) {
+  registrarEvento({ actor: actorActual(), ...datos }).catch(() =>
+    registrarError('no se pudo auditar la acción', { accion: datos.accion }),
+  );
 }
 
 /** Guarda y, si el navegador no deja escribir, lo cuenta: esa métrica tiene alarma propia. */
@@ -133,10 +140,12 @@ ui.loginForm.addEventListener('submit', (evento) => {
 
   if (!resultado.ok) {
     ui.loginError.textContent = resultado.mensaje;
+    auditar({ accion: 'sesion.rechazada', actor: email || 'anonimo', recurso: 'sesion', resultado: 'rechazado' });
     return;
   }
   ui.loginError.textContent = '';
   ui.loginForm.reset();
+  auditar({ accion: 'sesion.iniciada', actor: resultado.sesion.email, recurso: 'sesion' });
   mostrarPanel(resultado.sesion);
   ui.tituloPanel.focus();
   iniciarTour();
@@ -152,6 +161,7 @@ ui.logout.addEventListener('click', () => {
     },
     { email },
   );
+  auditar({ accion: 'sesion.cerrada', actor: email, recurso: 'sesion' });
   mostrarAcceso();
   ui.loginEmail.focus();
 });
@@ -196,6 +206,12 @@ ui.habitForm.addEventListener('submit', (evento) => {
     mostrarErrorHabito(resultado.mensaje);
     ui.habitName.focus();
     incrementar('habitos_creados_total', { resultado: 'rechazado' });
+    auditar({
+      accion: 'habito.creado',
+      recurso: escrito,
+      resultado: 'rechazado',
+      detalle: { motivo: resultado.mensaje },
+    });
     return;
   }
   ui.habitName.value = '';
@@ -203,6 +219,7 @@ ui.habitForm.addEventListener('submit', (evento) => {
   renderizar();
   anunciar(`Hábito «${resultado.habito.nombre}» agregado.`);
   incrementar('habitos_creados_total', { resultado: 'exito' });
+  auditar({ accion: 'habito.creado', recurso: resultado.habito.nombre, detalle: { id: resultado.habito.id } });
 });
 
 ui.habitName.addEventListener('input', () => {
@@ -323,7 +340,10 @@ function marcar(habitoId, conTeclado) {
   renderizar();
   if (habito) anunciar(`«${habito.nombre}» marcado como hecho hoy.`);
 
-  if (cambio) incrementar('habitos_marcados_total');
+  if (cambio) {
+    incrementar('habitos_marcados_total');
+    auditar({ accion: 'habito.marcado', recurso, detalle: { fecha: hoy } });
+  }
   // El botón queda deshabilitado: quien usa teclado sigue en el mismo hábito.
   if (conTeclado) enfocarEnItem(habitoId, 'habit-delete');
 }
@@ -355,6 +375,7 @@ function eliminar(habitoId, conTeclado) {
   renderizar();
   anunciar(`Hábito «${nombre}» eliminado.`);
   incrementar('habitos_eliminados_total');
+  auditar({ accion: 'habito.eliminado', recurso: nombre, detalle: { restantes: resultado.habitos.length } });
   if (conTeclado) {
     const vecino = resultado.habitos[Math.min(indice, resultado.habitos.length - 1)];
     if (vecino) enfocarEnItem(vecino.id, 'habit-delete');
@@ -379,7 +400,7 @@ document.addEventListener('visibilitychange', () => {
 
 // ─── Arranque ──────────────────────────────────────────────────────────────────────────────
 
-montarVisor({ contenedor: ui.zonaVisor, boton: ui.verObservabilidad });
+montarVisor({ contenedor: ui.zonaVisor, boton: ui.verObservabilidad, actorActual });
 
 const sesion = sesionActual();
 info('panel cargado', { conSesion: Boolean(sesion) });

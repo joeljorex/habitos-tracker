@@ -1250,6 +1250,36 @@ input[aria-invalid="true"]:focus-visible {
   display: block;
 }
 
+/* ── Auditoría ── */
+
+.visor-integridad {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--fondo);
+  font-size: 0.875rem;
+}
+
+.visor-integridad[data-estado="ok"] {
+  border-color: var(--exito-borde);
+  background: var(--exito-suave);
+  color: var(--exito);
+  font-weight: 600;
+}
+
+.visor-integridad[data-estado="alarma"] {
+  border-color: var(--error-borde);
+  background: var(--error-suave);
+  color: var(--error);
+  font-weight: 600;
+}
+
+.visor-accion {
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  font-size: 0.8125rem;
+}
+
 /* ── Pantallas medianas y grandes ── */
 
 @media (min-width: 860px) {
@@ -1259,7 +1289,6 @@ input[aria-invalid="true"]:focus-visible {
 }
 
 /* Con espacio de sobra el visor se sale del ancho del panel: las tablas se leen mejor. */
-
 @media (min-width: 1100px) {
   .visor {
     width: min(1040px, calc(100vw - 48px));

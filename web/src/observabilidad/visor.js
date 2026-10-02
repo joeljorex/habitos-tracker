@@ -1,13 +1,15 @@
-// Marco del visor de observabilidad (specs 005 y 006).
+// Marco del visor de observabilidad (specs 005, 006 y 007).
 //
-// Un panel con pestañas dentro de la misma aplicación: Métricas (con sus alarmas) y
-// Trazabilidad (bitácora y trazas). No necesita servidor: todo se arma con lo que los
+// Un panel con tres pestañas dentro de la misma aplicación: Métricas (con sus alarmas),
+// Trazabilidad (bitácora y trazas) y Auditoría. No necesita servidor: todo se arma con lo que los
 // módulos de observabilidad ya guardaron en el navegador, así que también funciona en GitHub Pages.
 import { crear } from '../ui/dom.js';
 import { alarmasActuales, estadoGeneral } from './alarmas.js';
+import { alCambiar as alCambiarAuditoria } from './auditoria.js';
 import { alCambiar as alCambiarBitacora } from './bitacora.js';
 import { alCambiar as alCambiarMetricas } from './metricas.js';
 import { alCambiar as alCambiarTrazas } from './trazas.js';
+import { crearVistaAuditoria } from './visor/auditoria-vista.js';
 import { crearVistaMetricas } from './visor/metricas-vista.js';
 import { crearVistaTrazabilidad } from './visor/trazabilidad-vista.js';
 
@@ -15,10 +17,10 @@ const ETIQUETA_ESTADO = { ok: 'todo normal', aviso: 'con avisos', alarma: 'con a
 
 /**
  * Monta el visor dentro de `contenedor` y lo conecta a `boton`.
- * @param {{contenedor: HTMLElement, boton: HTMLElement}} opciones
+ * @param {{contenedor: HTMLElement, boton: HTMLElement, actorActual?: () => string}} opciones
  */
-export function montarVisor({ contenedor, boton }) {
-  const vistas = [crearVistaMetricas(), crearVistaTrazabilidad()];
+export function montarVisor({ contenedor, boton, actorActual = () => 'desconocido' }) {
+  const vistas = [crearVistaMetricas(), crearVistaTrazabilidad(), crearVistaAuditoria({ actorActual })];
 
   const pestanas = vistas.map((vista, indice) =>
     crear(
@@ -148,7 +150,7 @@ export function montarVisor({ contenedor, boton }) {
     });
   }
 
-  for (const suscribir of [alCambiarMetricas, alCambiarBitacora, alCambiarTrazas]) {
+  for (const suscribir of [alCambiarMetricas, alCambiarBitacora, alCambiarTrazas, alCambiarAuditoria]) {
     suscribir(alHaberCambios);
   }
   actualizarBoton();
