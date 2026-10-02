@@ -21,7 +21,9 @@ habitos-tracker/
 ├── web/             # Panel web (HTML + JS con módulos ES, guía con driver.js)
 ├── tests/           # Pruebas del panel: unit/ (node --test) y e2e/ (Playwright)
 ├── specs/           # Specs de Spec-Driven Development (Spec Kit)
-├── docs/            # Planeación, pruebas, CI/CD, despliegue, SDD
+├── docs/            # Planeación, pruebas, CI/CD, despliegue, SDD y monitoreo
+├── infra/monitoreo/ # Stack de monitoreo (Prometheus, Grafana, Alertmanager)
+├── infra/sonarqube/ # Stack local de análisis estático
 ├── infra/terraform/ # Infraestructura como código (GitHub + Railway)
 ├── scripts/         # Servidor estático y gate de specs
 ├── .devcontainer/   # Entorno de GitHub Codespaces
@@ -35,11 +37,14 @@ habitos-tracker/
 | Componente | Stack | Estado |
 |---|---|---|
 | Panel web | HTML, CSS, JavaScript, driver.js | Funcional (specs 001, 002 y 004) |
+| Observabilidad del panel | métricas, bitácora, trazas y auditoría, sin dependencias | Funcional (specs 005, 006 y 007) |
+| Monitoreo del entorno | Prometheus, Grafana, Blackbox exporter, Alertmanager | Activo (spec 005) |
+| Seguridad de dependencias | OSV-Scanner, Dependabot, `npm audit` | Activo (spec 008) |
 | Pruebas automáticas | Playwright, `node --test` | En CI en cada PR |
 | CI/CD | GitHub Actions, GitHub Pages | Activo (spec 003) |
 | Infraestructura | Codespaces, Terraform | Activo (spec 003) |
-| API backend | Laravel, MySQL, Sanctum | Por iniciar (spec 005) |
-| App móvil | Kotlin, Compose, Room, Retrofit, WorkManager | Por iniciar (specs 006 y 007) |
+| API backend | Laravel, MySQL, Sanctum | Por iniciar (spec por asignar) |
+| App móvil | Kotlin, Compose, Room, Retrofit, WorkManager | Por iniciar (specs por asignar) |
 
 ## Cómo levantar el proyecto
 
@@ -81,9 +86,26 @@ npm run serve       # http://127.0.0.1:4173/
 | [trazabilidad.md](docs/trazabilidad.md) | Requisito → spec → caso → prueba → PR |
 | [infra/terraform/README.md](infra/terraform/README.md) | Uso de Terraform |
 
+### Liberación y monitoreo
+
+| Documento | Contenido |
+|---|---|
+| [justificacion-pipeline.md](docs/justificacion-pipeline.md) | Por qué el pipeline es así y qué compuerta hace cada cosa |
+| [entorno-liberacion.md](docs/entorno-liberacion.md) | Los cuatro entornos y qué hace falta en cada uno |
+| [niveles-de-servicio.md](docs/niveles-de-servicio.md) | Disponibilidad, latencia y presupuesto de error acordados |
+| [parametros-herramientas-cicd.md](docs/parametros-herramientas-cicd.md) | Parámetros de k6, SonarQube, husky y GitHub Actions |
+| [plan-pruebas-carga.md](docs/plan-pruebas-carga.md) · [resultados-carga.md](docs/resultados-carga.md) | Pruebas de carga con k6 y sus resultados |
+| [guia-sonarqube-local.md](docs/guia-sonarqube-local.md) · [analisis-estatico.md](docs/analisis-estatico.md) | Análisis estático con SonarQube |
+| [sdd-observabilidad.md](docs/sdd-observabilidad.md) | Por qué los módulos de observabilidad se hicieron con SDD |
+| [monitoreo-entorno.md](docs/monitoreo-entorno.md) | Métricas, alarmas, alertas y cómo se comprobó que se disparan |
+| [visor-trazabilidad.md](docs/visor-trazabilidad.md) | Cómo se lee una traza y cómo se usa en soporte |
+| [visor-auditoria.md](docs/visor-auditoria.md) | Qué se audita, cómo funciona la cadena de hashes y su alcance |
+| [seguridad-dependencias.md](docs/seguridad-dependencias.md) | Análisis de vulnerabilidades y actualización automática |
+| [infra/monitoreo/README.md](infra/monitoreo/README.md) | Cómo levantar el stack de monitoreo |
+
 ## Equipo
 
 - Joel Armando Ibarra Rubalcava
 - Jorge Humberto Martínez Delgado
 
-Universidad Tecnológica de Hermosillo · IDGS 8-2 · Planeación del Proceso de Desarrollo de Software.
+Universidad Tecnológica de Hermosillo · IDGS 10-2 · Planeación del Proceso de Desarrollo de Software.
