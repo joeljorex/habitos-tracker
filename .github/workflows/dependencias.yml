@@ -69,7 +69,8 @@ jobs:
             echo "No se generó reporte: revisar el paso de análisis." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          total=$(node -e "const r=require('./resultados.sarif');console.log((r.runs?.[0]?.results??[]).length)")
+          # require() trataría el .sarif como JavaScript: hay que leerlo y parsearlo a mano.
+          total=$(node -e "const fs=require('node:fs');const r=JSON.parse(fs.readFileSync('resultados.sarif','utf8'));console.log((r.runs?.[0]?.results ?? []).length)")
           echo "## OSV-Scanner" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Vulnerabilidades encontradas en package-lock.json: **$total**" >> "$GITHUB_STEP_SUMMARY"
