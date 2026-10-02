@@ -1,0 +1,56 @@
+# Configuración de Prometheus para el entorno de liberación de Hábitos Tracker (spec 005).
+#
+# El panel es una aplicación de navegador servida como sitio estático: no hay proceso propio que
+# exponga /metrics. Lo que se monitorea desde fuera es el entorno de liberación (GitHub Pages) con
+# el exportador blackbox, que es exactamente lo que miden los niveles de servicio de docs/.
+global:
+  scrape_interval: 30s # cada cuánto se recolecta
+  scrape_timeout: 10s
+  evaluation_interval: 30s # cada cuánto se evalúan las reglas de alerta
+  external_labels:
+    proyecto: habitos-tracker
+    entorno: produccion
+
+rule_files:
+  - /etc/prometheus/reglas.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  # 1. Prometheus se vigila a sí mismo: si esto falla, no hay que creerle a lo demás.
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # 2. El exportador blackbox también se vigila.
+  - job_name: blackbox
+    static_configs:
+      - targets: ["blackbox:9115"]
+
+  # 3. Sondas HTTP al panel publicado y al panel local (npm run serve).
+  - job_name: panel_http
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://joeljorex.github.io/habitos-tracker/
+        labels:
+          entorno: produccion
+          componente: panel
+      - targets:
+          - http://host.docker.internal:4173/
+        labels:
+          entorno: local
+          componente: panel
+    relabel_configs:
+      # El objetivo real es blackbox; la URL sondeada viaja como parámetro y queda como etiqueta.
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115

@@ -1,0 +1,66 @@
+# Reglas de alerta del entorno de liberación (spec 005).
+#
+# Los umbrales son los mismos que docs/niveles-de-servicio.md declara como objetivo y los que el
+# visor del panel evalúa en web/src/observabilidad/alarmas.js: una sola definición, dos lugares
+# donde se puede comprobar.
+groups:
+  - name: disponibilidad
+    rules:
+      - alert: PanelCaido
+        expr: probe_success{job="panel_http"} == 0
+        for: 2m
+        labels:
+          severidad: critica
+        annotations:
+          resumen: "El panel no responde en {{ $labels.entorno }}"
+          descripcion: "La sonda HTTP a {{ $labels.instance }} falla desde hace 2 minutos. Objetivo de disponibilidad: 99 % mensual."
+
+      - alert: RespuestaNoExitosa
+        expr: probe_http_status_code{job="panel_http"} >= 400
+        for: 5m
+        labels:
+          severidad: critica
+        annotations:
+          resumen: "El panel responde {{ $value }} en {{ $labels.entorno }}"
+          descripcion: "{{ $labels.instance }} devuelve un código de error. Revisar el último despliegue a GitHub Pages."
+
+      - alert: ObjetivoSinDatos
+        expr: up{job=~"blackbox|prometheus"} == 0
+        for: 5m
+        labels:
+          severidad: aviso
+        annotations:
+          resumen: "Sin datos de {{ $labels.job }}"
+          descripcion: "El propio monitoreo dejó de responder: las demás alertas no son confiables hasta resolverlo."
+
+  - name: latencia
+    rules:
+      - alert: LatenciaAlta
+        # Mismo umbral que la prueba de carga de la Actividad 1.2: p95 por debajo de 5 s.
+        expr: probe_duration_seconds{job="panel_http"} > 5
+        for: 5m
+        labels:
+          severidad: aviso
+        annotations:
+          resumen: "El panel tarda {{ $value | printf \"%.2f\" }} s en {{ $labels.entorno }}"
+          descripcion: "La sonda completa supera los 5 s durante 5 minutos. Objetivo: p95 por debajo de 5 s."
+
+      - alert: LatenciaMuyAlta
+        expr: probe_duration_seconds{job="panel_http"} > 10
+        for: 2m
+        labels:
+          severidad: critica
+        annotations:
+          resumen: "El panel tarda más de 10 s en {{ $labels.entorno }}"
+          descripcion: "Con esta latencia el panel es inusable: tratar como caída parcial."
+
+  - name: certificados
+    rules:
+      - alert: CertificadoPorVencer
+        expr: probe_ssl_earliest_cert_expiry{job="panel_http"} - time() < 15 * 24 * 3600
+        for: 30m
+        labels:
+          severidad: aviso
+        annotations:
+          resumen: "El certificado de {{ $labels.instance }} vence pronto"
+          descripcion: "Quedan menos de 15 días. En GitHub Pages lo renueva la plataforma, pero conviene confirmarlo."

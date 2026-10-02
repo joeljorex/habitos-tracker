@@ -741,3 +741,558 @@ input[aria-invalid="true"]:focus-visible {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ─── Visor de observabilidad (specs 005, 006 y 007) ───────────────────────────── */
+
+/* El botón del encabezado lleva un punto con el estado general de las alarmas. */
+.boton-observabilidad::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--exito);
+  flex: none;
+}
+
+.boton-observabilidad[data-estado="aviso"]::before {
+  background: #b54708;
+}
+
+.boton-observabilidad[data-estado="alarma"]::before {
+  background: var(--error);
+}
+
+.visor {
+  margin-top: 24px;
+  padding: 18px 16px 20px;
+}
+
+.visor-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.visor-titulo {
+  font-size: 1.125rem;
+  font-weight: 650;
+}
+
+.visor-pestanas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 14px 0 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.visor-pestana {
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--radio-chico) var(--radio-chico) 0 0;
+  background: none;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+
+.visor-pestana:hover {
+  background: var(--acento-suave);
+  color: var(--acento-oscuro);
+}
+
+.visor-pestana[aria-selected="true"] {
+  border-color: var(--borde);
+  background: var(--superficie);
+  color: var(--acento-oscuro);
+  font-weight: 600;
+  margin-bottom: -1px;
+  padding-bottom: 10px;
+}
+
+.visor-panel {
+  padding-top: 16px;
+}
+
+.visor-panel:focus-visible {
+  outline-offset: 4px;
+}
+
+.visor-vista {
+  display: grid;
+  gap: 14px;
+}
+
+.visor-resumen,
+.visor-ayuda {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+.visor-subtitulo {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 650;
+}
+
+.visor-vacio {
+  margin: 0;
+  padding: 12px;
+  border: 1px dashed var(--borde-fuerte);
+  border-radius: var(--radio-chico);
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+  text-align: center;
+  list-style: none;
+}
+
+.visor-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+/* ── Alarmas ── */
+
+.visor-alarmas {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.visor-alarma {
+  padding: 12px 14px;
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--borde-fuerte);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+}
+
+.visor-alarma-ok {
+  border-left-color: var(--exito);
+}
+
+.visor-alarma-aviso {
+  border-left-color: #b54708;
+  background: #fffaeb;
+}
+
+.visor-alarma-alarma {
+  border-left-color: var(--error);
+  background: var(--error-suave);
+}
+
+.visor-alarma-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.visor-alarma-titulo {
+  font-weight: 600;
+}
+
+.visor-alarma-datos {
+  margin: 4px 0 0;
+  font-size: 0.9375rem;
+}
+
+.visor-alarma-umbral,
+.visor-alarma-descripcion {
+  color: var(--texto-suave);
+  font-size: 0.8125rem;
+}
+
+.visor-alarma-descripcion {
+  margin: 2px 0 0;
+}
+
+.visor-insignia-estado {
+  padding: 2px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.visor-insignia-ok {
+  background: var(--exito-suave);
+  border-color: var(--exito-borde);
+  color: var(--exito);
+}
+
+.visor-insignia-aviso {
+  background: #fef0c7;
+  border-color: #fedf89;
+  color: #93370d;
+}
+
+.visor-insignia-alarma {
+  background: var(--error-suave);
+  border-color: var(--error-borde);
+  color: var(--error);
+}
+
+/* ── Tablas ── */
+
+.visor-tablas {
+  display: grid;
+  gap: 14px;
+}
+
+.visor-bloque {
+  display: grid;
+  gap: 8px;
+}
+
+.visor-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+/* La tabla conserva su ancho completo y es el contenedor el que se desplaza. */
+.visor-desplazable {
+  overflow: auto;
+}
+
+.visor-desplazable-alto {
+  max-height: 420px;
+}
+
+.visor-tabla th,
+.visor-tabla td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--borde);
+  text-align: left;
+  vertical-align: top;
+}
+
+.visor-tabla th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--fondo);
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.visor-tabla tbody tr:hover {
+  background: var(--acento-suave);
+}
+
+.visor-celda-clave {
+  display: grid;
+  gap: 1px;
+}
+
+.visor-metrica-nombre {
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+}
+
+.visor-metrica-etiquetas,
+.visor-registro-contexto,
+.visor-traza-atributos {
+  display: block;
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  word-break: break-word;
+}
+
+.visor-celda-valor {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.visor-celda-hora,
+.visor-celda-traza,
+.visor-celda-hash {
+  white-space: nowrap;
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+.visor-codigo {
+  margin: 0;
+  padding: 12px;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+.visor-detalle {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  padding: 10px 12px;
+}
+
+.visor-detalle summary {
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.visor-detalle > .visor-ayuda {
+  margin: 8px 0;
+}
+
+/* ── Filtros ── */
+
+.visor-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.visor-campo {
+  display: grid;
+  gap: 3px;
+  flex: 1 1 160px;
+}
+
+.visor-campo label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+.visor-select,
+.visor-entrada {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--texto);
+}
+
+.visor-chip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--acento);
+  border-radius: 999px;
+  background: var(--acento-suave);
+  color: var(--acento-oscuro);
+  font-size: 0.8125rem;
+}
+
+/* ── Trazabilidad ── */
+
+.visor-columnas {
+  display: grid;
+  gap: 16px;
+}
+
+.visor-columna {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+
+.visor-trazas {
+  display: grid;
+  /* Sin esto, el alto máximo aplastaría las tarjetas en lugar de desplazar la lista. */
+  align-content: start;
+  grid-auto-rows: max-content;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.visor-traza {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  overflow: hidden;
+}
+
+.visor-traza-elegida {
+  border-color: var(--acento);
+  box-shadow: inset 3px 0 0 var(--acento);
+}
+
+.visor-traza-boton {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.visor-traza-boton:hover {
+  background: var(--acento-suave);
+}
+
+.visor-traza-cabecera {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.visor-traza-nombre {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.visor-traza-meta {
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+}
+
+.visor-spans {
+  display: grid;
+  margin: 0;
+  padding: 0 12px 10px;
+  list-style: none;
+}
+
+.visor-span {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 3px 0;
+  font-size: 0.8125rem;
+  border-top: 1px dashed var(--borde);
+}
+
+.visor-span-sangria {
+  color: var(--borde-fuerte);
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  white-space: pre;
+}
+
+.visor-span-nombre {
+  flex: 1;
+}
+
+.visor-span-duracion {
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.visor-span-error {
+  color: var(--error);
+  font-size: 0.75rem;
+}
+
+.visor-span-error:not(span) {
+  margin: 0;
+  padding: 0 12px 10px;
+}
+
+.visor-nivel {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  white-space: nowrap;
+  background: var(--fondo);
+  color: var(--texto-suave);
+  border: 1px solid var(--borde);
+}
+
+.visor-nivel-info {
+  background: var(--acento-suave);
+  border-color: #b7e4db;
+  color: var(--acento-oscuro);
+}
+
+.visor-nivel-aviso {
+  background: #fef0c7;
+  border-color: #fedf89;
+  color: #93370d;
+}
+
+.visor-nivel-error {
+  background: var(--error-suave);
+  border-color: var(--error-borde);
+  color: var(--error);
+}
+
+.visor-registro-mensaje {
+  display: block;
+}
+
+/* ── Auditoría ── */
+
+.visor-integridad {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--fondo);
+  font-size: 0.875rem;
+}
+
+.visor-integridad[data-estado="ok"] {
+  border-color: var(--exito-borde);
+  background: var(--exito-suave);
+  color: var(--exito);
+  font-weight: 600;
+}
+
+.visor-integridad[data-estado="alarma"] {
+  border-color: var(--error-borde);
+  background: var(--error-suave);
+  color: var(--error);
+  font-weight: 600;
+}
+
+.visor-accion {
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  font-size: 0.8125rem;
+}
+
+/* ── Pantallas medianas y grandes ── */
+
+@media (min-width: 860px) {
+  .visor-columnas {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+}
+
+/* Con espacio de sobra el visor se sale del ancho del panel: las tablas se leen mejor. */
+@media (min-width: 1100px) {
+  .visor {
+    width: min(1040px, calc(100vw - 48px));
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+}

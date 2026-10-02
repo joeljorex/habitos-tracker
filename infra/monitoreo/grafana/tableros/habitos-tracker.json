@@ -1,0 +1,277 @@
+{
+  "uid": "habitos-entorno",
+  "title": "Hábitos Tracker · entorno de liberación",
+  "description": "Disponibilidad, latencia y certificado del panel publicado (spec 005). Se aprovisiona desde infra/monitoreo/grafana.",
+  "tags": ["habitos-tracker", "actividad-3.1"],
+  "timezone": "browser",
+  "editable": true,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "entorno",
+        "label": "Entorno",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "habitos-prometheus" },
+        "query": "label_values(probe_success, entorno)",
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true,
+        "current": { "selected": true, "text": ["All"], "value": ["$__all"] }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Estado actual",
+      "description": "1 = el panel responde 200; 0 = la sonda falla.",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "habitos-prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "probe_success{job=\"panel_http\", entorno=~\"$entorno\"}",
+          "legendFormat": "{{entorno}}",
+          "instant": true
+        }
+      ],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value_and_name" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "Caído", "color": "red", "index": 0 } } },
+            { "type": "value", "options": { "1": { "text": "Arriba", "color": "green", "index": 1 } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Disponibilidad 24 h",
+      "description": "Objetivo de nivel de servicio: 99 % mensual (docs/niveles-de-servicio.md).",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "habitos-prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * avg_over_time(probe_success{job=\"panel_http\", entorno=~\"$entorno\"}[24h])",
+          "legendFormat": "{{entorno}}",
+          "instant": true
+        }
+      ],
+      "options": { "colorMode": "value", "graphMode": "area", "textMode": "value_and_name" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 95 },
+              { "color": "green", "value": 99 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Último código HTTP",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "habitos-prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "probe_http_status_code{job=\"panel_http\", entorno=~\"$entorno\"}",
+          "legendFormat": "{{entorno}}",
+          "instant": true
+        }
+      ],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value_and_name" },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "orange", "value": null },
+              { "color": "green", "value": 200 },
+              { "color": "orange", "value": 300 },
+              { "color": "red", "value": 400 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Días de certificado",
+      "description": "Alerta CertificadoPorVencer: menos de 15 días.",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "habitos-prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(probe_ssl_earliest_cert_expiry{job=\"panel_http\", entorno=~\"$entorno\"} - time()) / 86400",
+          "legendFormat": "{{entorno}} · días",
+          "instant": true
+        }
+      ],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value_and_name" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 15 },
+              { "color": "green", "value": 30 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Latencia de la sonda",
+      "description": "Umbral de aviso en 5 s: el mismo que la prueba de carga de la Actividad 1.2.",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "habitos-prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "probe_duration_seconds{job=\"panel_http\", entorno=~\"$entorno\"}",
+          "legendFormat": "{{entorno}} · total"
+        },
+        {
+          "refId": "B",
+          "expr": "probe_http_duration_seconds{job=\"panel_http\", entorno=~\"$entorno\", phase=\"processing\"}",
+          "legendFormat": "{{entorno}} · servidor"
+        }
+      ],
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 3,
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 8, "showPoints": "never" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 5 },
+              { "color": "red", "value": 10 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Fases de la petición",
+      "description": "Dónde se va el tiempo: resolución DNS, conexión, TLS y respuesta.",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "habitos-prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "probe_http_duration_seconds{job=\"panel_http\", entorno=~\"$entorno\"}",
+          "legendFormat": "{{entorno}} · {{phase}}"
+        }
+      ],
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 3,
+          "custom": { "drawStyle": "bars", "lineWidth": 1, "fillOpacity": 60, "stacking": { "mode": "normal" } }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Disponibilidad en el tiempo",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "habitos-prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * avg_over_time(probe_success{job=\"panel_http\", entorno=~\"$entorno\"}[30m])",
+          "legendFormat": "{{entorno}}"
+        }
+      ],
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 15, "showPoints": "never" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Alertas activas",
+      "description": "Lo mismo que Alertmanager está agrupando en http://localhost:9093",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "habitos-prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ALERTS{alertstate=\"firing\"}",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "options": { "showHeader": true },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true, "Value": true, "__name__": true, "job": true, "proyecto": true },
+            "renameByName": { "alertname": "Alerta", "severidad": "Severidad", "entorno": "Entorno", "instance": "URL" }
+          }
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] }
+    }
+  ]
+}

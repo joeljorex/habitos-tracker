@@ -1,7 +1,8 @@
-// Orquestación de la interfaz del panel (specs 001, 002 y 004).
+// Orquestación de la interfaz del panel (specs 001, 002, 004, 005, 006 y 007).
 //
 // Solo presenta y conecta eventos: las reglas viven en dominio/, la persistencia en almacen.js,
-// la autenticación simulada en auth.js y la guía en tour/.
+// la autenticación simulada en auth.js, la guía en tour/ y la observabilidad en observabilidad/.
+// Cada acción de la persona queda medida (métricas), trazada (trazas y bitácora) y auditada.
 import {
   crearHabito,
   diasCumplidos,
@@ -15,8 +16,13 @@ import { calcularRachas } from './dominio/rachas.js';
 import { guardarHabitos, guardarRegistros, leerHabitos, leerRegistros } from './almacen.js';
 import { cerrarSesion, iniciarSesion, sesionActual } from './auth.js';
 import { cerrarTour, iniciarTour } from './tour/tour.js';
-
-const porTestId = (id, raiz = document) => raiz.querySelector(`[data-testid="${id}"]`);
+import { crear, porTestId } from './ui/dom.js';
+import { registrarEvento } from './observabilidad/auditoria.js';
+import { aviso, error as registrarError, info } from './observabilidad/bitacora.js';
+import { ahoraMs } from './observabilidad/deposito.js';
+import { incrementar, observar } from './observabilidad/metricas.js';
+import { conSpan, conTraza } from './observabilidad/trazas.js';
+import { montarVisor } from './observabilidad/visor.js';
 
 const ui = {
   vistaAcceso: document.getElementById('vista-acceso'),
@@ -28,6 +34,8 @@ const ui = {
   usuario: porTestId('usuario-actual'),
   logout: porTestId('logout'),
   verGuia: porTestId('ver-guia'),
+  verObservabilidad: porTestId('ver-observabilidad'),
+  zonaVisor: document.getElementById('zona-visor'),
   tituloPanel: document.getElementById('titulo-panel'),
   fechaHoy: document.getElementById('fecha-hoy'),
   habitForm: porTestId('habit-form'),
@@ -45,20 +53,51 @@ const textoDiasCumplidos = (n) => (n === 1 ? '1 día cumplido' : `${n} días cum
 const conDias = (n) => (n === 1 ? '1 día' : `${n} días`);
 const capitalizar = (texto) => texto.charAt(0).toUpperCase() + texto.slice(1);
 
-/** Crea un elemento con atributos y texto seguro (los datos del usuario nunca pasan por innerHTML). */
-function crear(etiqueta, atributos = {}, ...hijos) {
-  const nodo = document.createElement(etiqueta);
-  for (const [nombre, valor] of Object.entries(atributos)) {
-    if (valor === false || valor === null || valor === undefined) continue;
-    nodo.setAttribute(nombre, valor === true ? '' : String(valor));
-  }
-  nodo.append(...hijos);
-  return nodo;
-}
-
 /** Mensaje para lectores de pantalla (región role="status"). */
 function anunciar(mensaje) {
   ui.anuncio.textContent = mensaje;
+}
+
+// ─── Observabilidad ────────────────────────────────────────────────────────────────────────
+
+const actorActual = () => sesionActual()?.email ?? 'anonimo';
+
+/**
+ * Envuelve una acción de la interfaz: la traza, mide cuánto tardó, la cuenta y, si falla, deja el
+ * error en la bitácora y en el contador de errores. Devuelve lo que devuelva la operación.
+ *
+ * Importante: dentro no debe haber diálogos (confirm/prompt). El tiempo que la persona tarda en
+ * contestar inflaría la métrica de latencia y dispararía alarmas falsas.
+ */
+function accion(nombre, operacion, atributos = {}) {
+  const inicio = ahoraMs();
+  incrementar('habitos_acciones_total', { accion: nombre });
+  try {
+    return conTraza(nombre, operacion, atributos);
+  } catch (fallo) {
+    incrementar('habitos_errores_total', { origen: nombre });
+    registrarError(`la acción «${nombre}» falló`, { mensaje: String(fallo?.message ?? fallo) });
+    throw fallo;
+  } finally {
+    observar('habitos_operacion_duracion_ms', ahoraMs() - inicio, { operacion: nombre });
+  }
+}
+
+/** Registra un evento auditable. Es asíncrono (hash SHA-256) y nunca debe bloquear la interfaz. */
+function auditar(datos) {
+  registrarEvento({ actor: actorActual(), ...datos }).catch(() =>
+    registrarError('no se pudo auditar la acción', { accion: datos.accion }),
+  );
+}
+
+/** Guarda y, si el navegador no deja escribir, lo cuenta: esa métrica tiene alarma propia. */
+function guardar(dato, escribir, valor) {
+  const guardado = escribir(valor);
+  if (!guardado) {
+    incrementar('habitos_almacen_fallos_total', { dato });
+    registrarError('el navegador no permitió guardar', { dato });
+  }
+  return guardado;
 }
 
 // ─── Vistas ────────────────────────────────────────────────────────────────────────────────
@@ -84,25 +123,51 @@ function mostrarPanel(sesion) {
 
 ui.loginForm.addEventListener('submit', (evento) => {
   evento.preventDefault();
-  const resultado = iniciarSesion(ui.loginEmail.value, ui.loginPassword.value);
+  const email = ui.loginEmail.value.trim();
+  // Los registros se escriben dentro de la traza: así cada uno guarda su identificador y el visor
+  // puede saltar del registro a la operación completa.
+  const resultado = accion(
+    'iniciar sesión',
+    () => {
+      const intento = conSpan('validar credenciales', () => iniciarSesion(ui.loginEmail.value, ui.loginPassword.value));
+      if (intento.ok) info('sesión iniciada', { email: intento.sesion.email });
+      else aviso('acceso rechazado', { email, motivo: intento.mensaje });
+      return intento;
+    },
+    { email },
+  );
+  incrementar('habitos_accesos_total', { resultado: resultado.ok ? 'exito' : 'rechazado' });
+
   if (!resultado.ok) {
     ui.loginError.textContent = resultado.mensaje;
+    auditar({ accion: 'sesion.rechazada', actor: email || 'anonimo', recurso: 'sesion', resultado: 'rechazado' });
     return;
   }
   ui.loginError.textContent = '';
   ui.loginForm.reset();
+  auditar({ accion: 'sesion.iniciada', actor: resultado.sesion.email, recurso: 'sesion' });
   mostrarPanel(resultado.sesion);
   ui.tituloPanel.focus();
   iniciarTour();
 });
 
 ui.logout.addEventListener('click', () => {
-  cerrarSesion();
+  const email = actorActual();
+  accion(
+    'cerrar sesión',
+    () => {
+      cerrarSesion();
+      info('sesión cerrada', { email });
+    },
+    { email },
+  );
+  auditar({ accion: 'sesion.cerrada', actor: email, recurso: 'sesion' });
   mostrarAcceso();
   ui.loginEmail.focus();
 });
 
 ui.verGuia.addEventListener('click', () => {
+  info('guía abierta a petición', { origen: 'botón Ver guía' });
   iniciarTour({ forzar: true });
 });
 
@@ -120,18 +185,41 @@ function limpiarErrorHabito() {
 
 ui.habitForm.addEventListener('submit', (evento) => {
   evento.preventDefault();
-  const habitos = leerHabitos();
-  const resultado = crearHabito(ui.habitName.value, habitos, new Date());
+  const escrito = ui.habitName.value.trim();
+  const resultado = accion(
+    'crear hábito',
+    () => {
+      const habitos = conSpan('leer hábitos', () => leerHabitos());
+      const creado = conSpan('validar nombre', () => crearHabito(ui.habitName.value, habitos, new Date()));
+      if (!creado.ok) {
+        aviso('hábito rechazado', { nombre: escrito, motivo: creado.mensaje });
+        return creado;
+      }
+      conSpan('guardar hábitos', () => guardar('habitos', guardarHabitos, [...habitos, creado.habito]));
+      info('hábito creado', { nombre: creado.habito.nombre, id: creado.habito.id });
+      return creado;
+    },
+    { nombre: escrito },
+  );
+
   if (!resultado.ok) {
     mostrarErrorHabito(resultado.mensaje);
     ui.habitName.focus();
+    incrementar('habitos_creados_total', { resultado: 'rechazado' });
+    auditar({
+      accion: 'habito.creado',
+      recurso: escrito,
+      resultado: 'rechazado',
+      detalle: { motivo: resultado.mensaje },
+    });
     return;
   }
-  guardarHabitos([...habitos, resultado.habito]);
   ui.habitName.value = '';
   limpiarErrorHabito();
   renderizar();
   anunciar(`Hábito «${resultado.habito.nombre}» agregado.`);
+  incrementar('habitos_creados_total', { resultado: 'exito' });
+  auditar({ accion: 'habito.creado', recurso: resultado.habito.nombre, detalle: { id: resultado.habito.id } });
 });
 
 ui.habitName.addEventListener('input', () => {
@@ -210,6 +298,7 @@ function crearItem(habito, registros, hoy, esPrimero) {
  * un cambio de día se refleja al repintar.
  */
 function renderizar() {
+  const inicio = ahoraMs();
   const ahora = new Date();
   const hoy = fechaLocal(ahora);
   const habitos = ordenarPorCreacion(leerHabitos());
@@ -221,6 +310,7 @@ function renderizar() {
   ui.vacio.hidden = habitos.length > 0;
   const hechosHoy = habitos.filter((habito) => estaHechoHoy(registros, habito.id, hoy)).length;
   ui.resumen.textContent = habitos.length > 0 ? `Hoy llevas ${hechosHoy} de ${habitos.length}` : '';
+  observar('habitos_render_duracion_ms', ahoraMs() - inicio);
 }
 
 function enfocarEnItem(habitoId, testId) {
@@ -229,12 +319,31 @@ function enfocarEnItem(habitoId, testId) {
 }
 
 function marcar(habitoId, conTeclado) {
-  const registros = leerRegistros();
-  const nuevos = marcarHecho(registros, habitoId, fechaLocal(new Date()));
-  if (nuevos.length !== registros.length) guardarRegistros(nuevos);
-  renderizar();
   const habito = leerHabitos().find((h) => h.id === habitoId);
+  const recurso = habito?.nombre ?? habitoId;
+  const hoy = fechaLocal(new Date());
+  const cambio = accion(
+    'marcar hábito',
+    () => {
+      const registros = conSpan('leer registros', () => leerRegistros());
+      const nuevos = conSpan('calcular registros', () => marcarHecho(registros, habitoId, hoy));
+      if (nuevos.length === registros.length) {
+        info('el hábito ya estaba marcado hoy', { nombre: recurso });
+        return false;
+      }
+      conSpan('guardar registros', () => guardar('registros', guardarRegistros, nuevos));
+      info('hábito marcado como hecho hoy', { nombre: recurso, fecha: hoy });
+      return true;
+    },
+    { habitoId, nombre: recurso },
+  );
+  renderizar();
   if (habito) anunciar(`«${habito.nombre}» marcado como hecho hoy.`);
+
+  if (cambio) {
+    incrementar('habitos_marcados_total');
+    auditar({ accion: 'habito.marcado', recurso, detalle: { fecha: hoy } });
+  }
   // El botón queda deshabilitado: quien usa teclado sigue en el mismo hábito.
   if (conTeclado) enfocarEnItem(habitoId, 'habit-delete');
 }
@@ -244,13 +353,29 @@ function eliminar(habitoId, conTeclado) {
   const indice = habitos.findIndex((h) => h.id === habitoId);
   if (indice === -1) return;
   const { nombre } = habitos[indice];
-  if (!window.confirm(`¿Eliminar «${nombre}»? También se borrará su historial.`)) return;
+  // La confirmación va antes de la traza: el tiempo de respuesta de la persona no es latencia.
+  if (!window.confirm(`¿Eliminar «${nombre}»? También se borrará su historial.`)) {
+    info('eliminación cancelada por la persona', { nombre });
+    return;
+  }
 
-  const resultado = eliminarHabito(habitos, leerRegistros(), habitoId);
-  guardarHabitos(resultado.habitos);
-  guardarRegistros(resultado.registros);
+  const resultado = accion(
+    'eliminar hábito',
+    () => {
+      const borrado = conSpan('quitar hábito y su historial', () =>
+        eliminarHabito(habitos, leerRegistros(), habitoId),
+      );
+      conSpan('guardar hábitos', () => guardar('habitos', guardarHabitos, borrado.habitos));
+      conSpan('guardar registros', () => guardar('registros', guardarRegistros, borrado.registros));
+      info('hábito eliminado', { nombre, restantes: borrado.habitos.length });
+      return borrado;
+    },
+    { habitoId, nombre },
+  );
   renderizar();
   anunciar(`Hábito «${nombre}» eliminado.`);
+  incrementar('habitos_eliminados_total');
+  auditar({ accion: 'habito.eliminado', recurso: nombre, detalle: { restantes: resultado.habitos.length } });
   if (conTeclado) {
     const vecino = resultado.habitos[Math.min(indice, resultado.habitos.length - 1)];
     if (vecino) enfocarEnItem(vecino.id, 'habit-delete');
@@ -275,7 +400,10 @@ document.addEventListener('visibilitychange', () => {
 
 // ─── Arranque ──────────────────────────────────────────────────────────────────────────────
 
+montarVisor({ contenedor: ui.zonaVisor, boton: ui.verObservabilidad, actorActual });
+
 const sesion = sesionActual();
+info('panel cargado', { conSesion: Boolean(sesion) });
 if (sesion) {
   mostrarPanel(sesion);
   iniciarTour();

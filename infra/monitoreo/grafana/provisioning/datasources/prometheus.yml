@@ -1,0 +1,12 @@
+# Fuente de datos de Grafana, aprovisionada al arrancar (spec 005): no hay que configurarla a mano.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    uid: habitos-prometheus
+    jsonData:
+      timeInterval: 30s
