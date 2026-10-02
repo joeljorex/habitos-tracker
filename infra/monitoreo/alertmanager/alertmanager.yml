@@ -1,0 +1,35 @@
+# Enrutamiento de alertas (spec 005).
+#
+# En un entorno escolar no hay guardia ni teléfono al que llamar: las alertas se agrupan y quedan
+# visibles en la interfaz de Alertmanager (http://localhost:9093). El receptor por webhook está
+# declarado y comentado para mostrar dónde entraría un canal real (Slack, Teams o correo).
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: bitacora
+  group_by: [alertname, entorno]
+  group_wait: 30s # espera antes del primer aviso, para agrupar alertas que llegan juntas
+  group_interval: 5m # cada cuánto avisa de cambios dentro de un grupo ya notificado
+  repeat_interval: 4h # cada cuánto repite una alerta que sigue activa
+  routes:
+    - matchers:
+        - severidad = "critica"
+      receiver: bitacora
+      repeat_interval: 1h # lo crítico se repite más seguido
+
+receivers:
+  - name: bitacora
+    # Sin integración externa: la alerta queda en Alertmanager y en la captura de evidencia.
+    # Para enviarla a un canal real bastaría descomentar y poner la URL del webhook:
+    # webhook_configs:
+    #   - url: https://ejemplo.invalido/alertas
+    #     send_resolved: true
+
+inhibit_rules:
+  # Si el panel está caído, no tiene sentido avisar también de que responde lento.
+  - source_matchers:
+      - alertname = "PanelCaido"
+    target_matchers:
+      - alertname =~ "LatenciaAlta|LatenciaMuyAlta"
+    equal: [entorno]
