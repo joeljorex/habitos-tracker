@@ -1,6 +1,6 @@
-// Visor de observabilidad: métricas con alarmas y trazabilidad (specs 005 y 006).
+// Visor de observabilidad: métricas con alarmas, trazabilidad y auditoría (specs 005, 006 y 007).
 import { expect, test } from '@playwright/test';
-import { CUENTA_DEMO, iniciarSesion, sembrar } from './helpers.js';
+import { CUENTA_DEMO, iniciarSesion, leerAlmacen, sembrar } from './helpers.js';
 
 /** Abre el visor y deja activa la pestaña indicada. */
 async function abrirVisor(page, pestana) {
@@ -24,8 +24,8 @@ test.describe('visor de observabilidad', () => {
     await expect(page.getByTestId('visor-pestana-metricas')).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByTestId('visor-panel-trazabilidad')).toBeHidden();
 
-    await page.getByTestId('visor-pestana-trazabilidad').click();
-    await expect(page.getByTestId('visor-panel-trazabilidad')).toBeVisible();
+    await page.getByTestId('visor-pestana-auditoria').click();
+    await expect(page.getByTestId('visor-panel-auditoria')).toBeVisible();
     await expect(page.getByTestId('visor-panel-metricas')).toBeHidden();
 
     await page.keyboard.press('Escape');
@@ -107,6 +107,50 @@ test.describe('visor de observabilidad', () => {
     await expect(page.getByTestId('bitacora-vacia')).toBeVisible();
   });
 
+  test('la auditoría registra quién hizo qué y verifica su cadena de hashes', async ({ page }) => {
+    await sembrar(page);
+    await iniciarSesion(page);
+    await page.getByTestId('habit-name').fill('Caminar');
+    await page.getByTestId('habit-submit').click();
+
+    await abrirVisor(page, 'auditoria');
+
+    const filas = page.getByTestId('auditoria-fila');
+    await expect(filas.filter({ hasText: 'sesion.iniciada' })).toHaveCount(1);
+    await expect(filas.filter({ hasText: 'habito.creado' })).toHaveCount(1);
+    await expect(filas.first()).toContainText(CUENTA_DEMO.email);
+
+    await page.getByTestId('auditoria-verificar').click();
+    const integridad = page.getByTestId('auditoria-integridad');
+    await expect(integridad).toHaveAttribute('data-estado', 'ok');
+    await expect(integridad).toContainText('sin alteraciones');
+  });
+
+  test('si alguien edita el almacenamiento, la verificación lo detecta', async ({ page }) => {
+    await sembrar(page);
+    await iniciarSesion(page);
+    await page.getByTestId('habit-name').fill('Estirar');
+    await page.getByTestId('habit-submit').click();
+    await expect(page.getByTestId('habit-item')).toHaveCount(1);
+
+    // Manipulación: se cambia el recurso de un evento sin recalcular su hash.
+    await expect
+      .poll(async () => (await leerAlmacen(page, 'habitos.v1.auditoria'))?.length ?? 0)
+      .toBeGreaterThanOrEqual(2);
+    await page.evaluate(() => {
+      const clave = 'habitos.v1.auditoria';
+      const eventos = JSON.parse(window.localStorage.getItem(clave));
+      eventos[eventos.length - 1].recurso = 'Otro hábito';
+      window.localStorage.setItem(clave, JSON.stringify(eventos));
+    });
+
+    await abrirVisor(page, 'auditoria');
+    await page.getByTestId('auditoria-verificar').click();
+    const integridad = page.getByTestId('auditoria-integridad');
+    await expect(integridad).toHaveAttribute('data-estado', 'alarma');
+    await expect(integridad).toContainText('fue modificado');
+  });
+
   test('el visor se recorre con el teclado', async ({ page }) => {
     await sembrar(page);
     await iniciarSesion(page);
@@ -118,8 +162,8 @@ test.describe('visor de observabilidad', () => {
     await expect(page.getByTestId('visor-panel-trazabilidad')).toBeVisible();
 
     await page.keyboard.press('End');
-    await expect(page.getByTestId('visor-pestana-trazabilidad')).toBeFocused();
-    await expect(page.getByTestId('visor-panel-trazabilidad')).toBeVisible();
+    await expect(page.getByTestId('visor-pestana-auditoria')).toBeFocused();
+    await expect(page.getByTestId('visor-panel-auditoria')).toBeVisible();
 
     await page.keyboard.press('Home');
     await expect(page.getByTestId('visor-pestana-metricas')).toBeFocused();
