@@ -64,9 +64,10 @@ Al redactar las secciones *Edge Cases* salieron solos los casos que de otro modo
 ### 2.4 Porque obliga a escribir las pruebas primero
 
 `tasks.md` pone la tarea de pruebas antes que la de implementación en las tres specs (T004 antes de
-T005, T003 antes de T004, T007 antes de T008). El resultado medible: **40 pruebas unitarias nuevas**
-y **7 pruebas end-to-end nuevas**, todas derivadas de los casos de referencia del contrato, no
-inventadas después para "cubrir" lo que ya estaba escrito.
+T005, T003 antes de T004, T007 antes de T008). El resultado medible: **39 pruebas unitarias nuevas**
+y **7 pruebas end-to-end nuevas** (que corren en los dos proyectos de Playwright, escritorio y
+móvil), todas derivadas de los casos de referencia del contrato, no inventadas después para
+"cubrir" lo que ya estaba escrito.
 
 ### 2.5 Porque deja la decisión explicada, no solo tomada
 
