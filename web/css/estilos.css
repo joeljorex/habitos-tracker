@@ -1058,7 +1058,207 @@ input[aria-invalid="true"]:focus-visible {
   margin: 8px 0;
 }
 
+/* ── Filtros ── */
+
+.visor-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.visor-campo {
+  display: grid;
+  gap: 3px;
+  flex: 1 1 160px;
+}
+
+.visor-campo label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+.visor-select,
+.visor-entrada {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--texto);
+}
+
+.visor-chip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--acento);
+  border-radius: 999px;
+  background: var(--acento-suave);
+  color: var(--acento-oscuro);
+  font-size: 0.8125rem;
+}
+
+/* ── Trazabilidad ── */
+
+.visor-columnas {
+  display: grid;
+  gap: 16px;
+}
+
+.visor-columna {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+
+.visor-trazas {
+  display: grid;
+  /* Sin esto, el alto máximo aplastaría las tarjetas en lugar de desplazar la lista. */
+  align-content: start;
+  grid-auto-rows: max-content;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.visor-traza {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  overflow: hidden;
+}
+
+.visor-traza-elegida {
+  border-color: var(--acento);
+  box-shadow: inset 3px 0 0 var(--acento);
+}
+
+.visor-traza-boton {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.visor-traza-boton:hover {
+  background: var(--acento-suave);
+}
+
+.visor-traza-cabecera {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.visor-traza-nombre {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.visor-traza-meta {
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+}
+
+.visor-spans {
+  display: grid;
+  margin: 0;
+  padding: 0 12px 10px;
+  list-style: none;
+}
+
+.visor-span {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 3px 0;
+  font-size: 0.8125rem;
+  border-top: 1px dashed var(--borde);
+}
+
+.visor-span-sangria {
+  color: var(--borde-fuerte);
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  white-space: pre;
+}
+
+.visor-span-nombre {
+  flex: 1;
+}
+
+.visor-span-duracion {
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.visor-span-error {
+  color: var(--error);
+  font-size: 0.75rem;
+}
+
+.visor-span-error:not(span) {
+  margin: 0;
+  padding: 0 12px 10px;
+}
+
+.visor-nivel {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  white-space: nowrap;
+  background: var(--fondo);
+  color: var(--texto-suave);
+  border: 1px solid var(--borde);
+}
+
+.visor-nivel-info {
+  background: var(--acento-suave);
+  border-color: #b7e4db;
+  color: var(--acento-oscuro);
+}
+
+.visor-nivel-aviso {
+  background: #fef0c7;
+  border-color: #fedf89;
+  color: #93370d;
+}
+
+.visor-nivel-error {
+  background: var(--error-suave);
+  border-color: var(--error-borde);
+  color: var(--error);
+}
+
+.visor-registro-mensaje {
+  display: block;
+}
+
 /* ── Pantallas medianas y grandes ── */
+
+@media (min-width: 860px) {
+  .visor-columnas {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+}
+
+/* Con espacio de sobra el visor se sale del ancho del panel: las tablas se leen mejor. */
 
 @media (min-width: 1100px) {
   .visor {

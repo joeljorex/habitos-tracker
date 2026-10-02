@@ -1,13 +1,15 @@
-// Marco del visor de observabilidad (spec 005).
+// Marco del visor de observabilidad (specs 005 y 006).
 //
-// Un panel con pestañas dentro de la misma aplicación. Empieza con la pestaña Métricas; las de
-// trazabilidad y auditoría se agregan en sus propias specs. No necesita servidor: todo se arma con
-// lo que los módulos de observabilidad ya guardaron en el navegador, así que también funciona en
-// GitHub Pages.
+// Un panel con pestañas dentro de la misma aplicación: Métricas (con sus alarmas) y
+// Trazabilidad (bitácora y trazas). No necesita servidor: todo se arma con lo que los
+// módulos de observabilidad ya guardaron en el navegador, así que también funciona en GitHub Pages.
 import { crear } from '../ui/dom.js';
 import { alarmasActuales, estadoGeneral } from './alarmas.js';
+import { alCambiar as alCambiarBitacora } from './bitacora.js';
 import { alCambiar as alCambiarMetricas } from './metricas.js';
+import { alCambiar as alCambiarTrazas } from './trazas.js';
 import { crearVistaMetricas } from './visor/metricas-vista.js';
+import { crearVistaTrazabilidad } from './visor/trazabilidad-vista.js';
 
 const ETIQUETA_ESTADO = { ok: 'todo normal', aviso: 'con avisos', alarma: 'con alarmas' };
 
@@ -16,7 +18,7 @@ const ETIQUETA_ESTADO = { ok: 'todo normal', aviso: 'con avisos', alarma: 'con a
  * @param {{contenedor: HTMLElement, boton: HTMLElement}} opciones
  */
 export function montarVisor({ contenedor, boton }) {
-  const vistas = [crearVistaMetricas()];
+  const vistas = [crearVistaMetricas(), crearVistaTrazabilidad()];
 
   const pestanas = vistas.map((vista, indice) =>
     crear(
@@ -146,7 +148,9 @@ export function montarVisor({ contenedor, boton }) {
     });
   }
 
-  alCambiarMetricas(alHaberCambios);
+  for (const suscribir of [alCambiarMetricas, alCambiarBitacora, alCambiarTrazas]) {
+    suscribir(alHaberCambios);
+  }
   actualizarBoton();
 
   return { abrir, cerrar, estaAbierto, activar };
