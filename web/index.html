@@ -52,6 +52,8 @@
             <span class="usuario" data-testid="usuario-actual"></span>
             <button type="button" class="boton boton-secundario boton-chico boton-guia" data-testid="ver-guia"
                     data-tour="ver-guia">Ver guía</button>
+            <button type="button" class="boton boton-secundario boton-chico boton-observabilidad"
+                    data-testid="ver-observabilidad">Observabilidad</button>
             <button type="button" class="boton boton-texto boton-chico boton-salir" data-testid="logout">Cerrar sesión</button>
           </div>
         </header>
@@ -79,6 +81,9 @@
           <p class="estado-vacio" data-testid="empty-state">Aún no tienes hábitos. Crea el primero.</p>
           <ul class="lista-habitos" data-testid="habit-list" aria-labelledby="titulo-lista"></ul>
         </section>
+
+        <!-- El visor de observabilidad (specs 005, 006 y 007) se arma aqui desde src/observabilidad/visor.js -->
+        <div id="zona-visor"></div>
 
         <p id="anuncio" class="solo-lectores" role="status"></p>
       </section>

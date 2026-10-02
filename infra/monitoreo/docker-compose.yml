@@ -1,0 +1,83 @@
+# Stack local de monitoreo del entorno de liberación (Actividad 3.1, spec 005).
+#
+# Levantar:  npm run monitoreo:levantar     (docker compose -f infra/monitoreo/docker-compose.yml up -d)
+# Apagar:    npm run monitoreo:apagar       (agregar -v al down para borrar también los datos)
+#
+# Qué observa:
+#   blackbox   sondea por HTTP el panel publicado en GitHub Pages y el panel local
+#   prometheus recolecta esas sondas, evalúa las reglas de alerta y guarda la serie de tiempo
+#   alertmanager recibe las alertas que se disparan y las agrupa
+#   grafana    presenta el tablero de disponibilidad y latencia (usuario y clave: admin / admin)
+name: habitos-monitoreo
+
+services:
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    container_name: habitos-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle # permite recargar la configuración sin reiniciar
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/reglas.yml:/etc/prometheus/reglas.yml:ro
+      - datos_prometheus:/prometheus
+    extra_hosts:
+      # Permite sondear el panel que corre en la máquina (npm run serve) desde el contenedor.
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.0
+    container_name: habitos-alertmanager
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - datos_alertmanager:/alertmanager
+
+  blackbox:
+    image: prom/blackbox-exporter:v0.26.0
+    container_name: habitos-blackbox
+    command:
+      - --config.file=/etc/blackbox/blackbox.yml
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    image: grafana/grafana-oss:11.5.1
+    container_name: habitos-grafana
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      # Sin autenticación la captura del tablero para la evidencia es directa.
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/tableros:/var/lib/grafana/tableros:ro
+      - datos_grafana:/var/lib/grafana
+
+volumes:
+  datos_prometheus:
+  datos_alertmanager:
+  datos_grafana:

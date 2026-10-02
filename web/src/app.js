@@ -1,7 +1,8 @@
-// Orquestación de la interfaz del panel (specs 001, 002 y 004).
+// Orquestación de la interfaz del panel (specs 001, 002, 004 y 005).
 //
 // Solo presenta y conecta eventos: las reglas viven en dominio/, la persistencia en almacen.js,
-// la autenticación simulada en auth.js y la guía en tour/.
+// la autenticación simulada en auth.js, la guía en tour/ y la observabilidad en observabilidad/.
+// Cada acción de la persona queda medida: se cuenta y se cronometra.
 import {
   crearHabito,
   diasCumplidos,
@@ -15,8 +16,10 @@ import { calcularRachas } from './dominio/rachas.js';
 import { guardarHabitos, guardarRegistros, leerHabitos, leerRegistros } from './almacen.js';
 import { cerrarSesion, iniciarSesion, sesionActual } from './auth.js';
 import { cerrarTour, iniciarTour } from './tour/tour.js';
-
-const porTestId = (id, raiz = document) => raiz.querySelector(`[data-testid="${id}"]`);
+import { crear, porTestId } from './ui/dom.js';
+import { ahoraMs } from './observabilidad/deposito.js';
+import { incrementar, observar } from './observabilidad/metricas.js';
+import { montarVisor } from './observabilidad/visor.js';
 
 const ui = {
   vistaAcceso: document.getElementById('vista-acceso'),
@@ -28,6 +31,8 @@ const ui = {
   usuario: porTestId('usuario-actual'),
   logout: porTestId('logout'),
   verGuia: porTestId('ver-guia'),
+  verObservabilidad: porTestId('ver-observabilidad'),
+  zonaVisor: document.getElementById('zona-visor'),
   tituloPanel: document.getElementById('titulo-panel'),
   fechaHoy: document.getElementById('fecha-hoy'),
   habitForm: porTestId('habit-form'),
@@ -45,20 +50,38 @@ const textoDiasCumplidos = (n) => (n === 1 ? '1 día cumplido' : `${n} días cum
 const conDias = (n) => (n === 1 ? '1 día' : `${n} días`);
 const capitalizar = (texto) => texto.charAt(0).toUpperCase() + texto.slice(1);
 
-/** Crea un elemento con atributos y texto seguro (los datos del usuario nunca pasan por innerHTML). */
-function crear(etiqueta, atributos = {}, ...hijos) {
-  const nodo = document.createElement(etiqueta);
-  for (const [nombre, valor] of Object.entries(atributos)) {
-    if (valor === false || valor === null || valor === undefined) continue;
-    nodo.setAttribute(nombre, valor === true ? '' : String(valor));
-  }
-  nodo.append(...hijos);
-  return nodo;
-}
-
 /** Mensaje para lectores de pantalla (región role="status"). */
 function anunciar(mensaje) {
   ui.anuncio.textContent = mensaje;
+}
+
+// ─── Observabilidad ────────────────────────────────────────────────────────────────────────
+
+/**
+ * Envuelve una acción de la interfaz: la cuenta, mide cuánto tardó y, si falla, suma al contador
+ * de errores. Devuelve lo que devuelva la operación.
+ *
+ * Importante: dentro no debe haber diálogos (confirm/prompt). El tiempo que la persona tarda en
+ * contestar inflaría la métrica de latencia y dispararía alarmas falsas.
+ */
+function accion(nombre, operacion) {
+  const inicio = ahoraMs();
+  incrementar('habitos_acciones_total', { accion: nombre });
+  try {
+    return operacion();
+  } catch (fallo) {
+    incrementar('habitos_errores_total', { origen: nombre });
+    throw fallo;
+  } finally {
+    observar('habitos_operacion_duracion_ms', ahoraMs() - inicio, { operacion: nombre });
+  }
+}
+
+/** Guarda y, si el navegador no deja escribir, lo cuenta: esa métrica tiene alarma propia. */
+function guardar(dato, escribir, valor) {
+  const guardado = escribir(valor);
+  if (!guardado) incrementar('habitos_almacen_fallos_total', { dato });
+  return guardado;
 }
 
 // ─── Vistas ────────────────────────────────────────────────────────────────────────────────
@@ -84,7 +107,9 @@ function mostrarPanel(sesion) {
 
 ui.loginForm.addEventListener('submit', (evento) => {
   evento.preventDefault();
-  const resultado = iniciarSesion(ui.loginEmail.value, ui.loginPassword.value);
+  const resultado = accion('iniciar sesión', () => iniciarSesion(ui.loginEmail.value, ui.loginPassword.value));
+  incrementar('habitos_accesos_total', { resultado: resultado.ok ? 'exito' : 'rechazado' });
+
   if (!resultado.ok) {
     ui.loginError.textContent = resultado.mensaje;
     return;
@@ -97,7 +122,7 @@ ui.loginForm.addEventListener('submit', (evento) => {
 });
 
 ui.logout.addEventListener('click', () => {
-  cerrarSesion();
+  accion('cerrar sesión', () => cerrarSesion());
   mostrarAcceso();
   ui.loginEmail.focus();
 });
@@ -120,18 +145,24 @@ function limpiarErrorHabito() {
 
 ui.habitForm.addEventListener('submit', (evento) => {
   evento.preventDefault();
-  const habitos = leerHabitos();
-  const resultado = crearHabito(ui.habitName.value, habitos, new Date());
+  const resultado = accion('crear hábito', () => {
+    const habitos = leerHabitos();
+    const creado = crearHabito(ui.habitName.value, habitos, new Date());
+    if (creado.ok) guardar('habitos', guardarHabitos, [...habitos, creado.habito]);
+    return creado;
+  });
+
   if (!resultado.ok) {
     mostrarErrorHabito(resultado.mensaje);
     ui.habitName.focus();
+    incrementar('habitos_creados_total', { resultado: 'rechazado' });
     return;
   }
-  guardarHabitos([...habitos, resultado.habito]);
   ui.habitName.value = '';
   limpiarErrorHabito();
   renderizar();
   anunciar(`Hábito «${resultado.habito.nombre}» agregado.`);
+  incrementar('habitos_creados_total', { resultado: 'exito' });
 });
 
 ui.habitName.addEventListener('input', () => {
@@ -210,6 +241,7 @@ function crearItem(habito, registros, hoy, esPrimero) {
  * un cambio de día se refleja al repintar.
  */
 function renderizar() {
+  const inicio = ahoraMs();
   const ahora = new Date();
   const hoy = fechaLocal(ahora);
   const habitos = ordenarPorCreacion(leerHabitos());
@@ -221,6 +253,7 @@ function renderizar() {
   ui.vacio.hidden = habitos.length > 0;
   const hechosHoy = habitos.filter((habito) => estaHechoHoy(registros, habito.id, hoy)).length;
   ui.resumen.textContent = habitos.length > 0 ? `Hoy llevas ${hechosHoy} de ${habitos.length}` : '';
+  observar('habitos_render_duracion_ms', ahoraMs() - inicio);
 }
 
 function enfocarEnItem(habitoId, testId) {
@@ -229,12 +262,18 @@ function enfocarEnItem(habitoId, testId) {
 }
 
 function marcar(habitoId, conTeclado) {
-  const registros = leerRegistros();
-  const nuevos = marcarHecho(registros, habitoId, fechaLocal(new Date()));
-  if (nuevos.length !== registros.length) guardarRegistros(nuevos);
+  const hoy = fechaLocal(new Date());
+  const cambio = accion('marcar hábito', () => {
+    const registros = leerRegistros();
+    const nuevos = marcarHecho(registros, habitoId, hoy);
+    if (nuevos.length === registros.length) return false;
+    guardar('registros', guardarRegistros, nuevos);
+    return true;
+  });
   renderizar();
   const habito = leerHabitos().find((h) => h.id === habitoId);
   if (habito) anunciar(`«${habito.nombre}» marcado como hecho hoy.`);
+  if (cambio) incrementar('habitos_marcados_total');
   // El botón queda deshabilitado: quien usa teclado sigue en el mismo hábito.
   if (conTeclado) enfocarEnItem(habitoId, 'habit-delete');
 }
@@ -244,13 +283,18 @@ function eliminar(habitoId, conTeclado) {
   const indice = habitos.findIndex((h) => h.id === habitoId);
   if (indice === -1) return;
   const { nombre } = habitos[indice];
+  // La confirmación va antes de la medición: el tiempo de respuesta de la persona no es latencia.
   if (!window.confirm(`¿Eliminar «${nombre}»? También se borrará su historial.`)) return;
 
-  const resultado = eliminarHabito(habitos, leerRegistros(), habitoId);
-  guardarHabitos(resultado.habitos);
-  guardarRegistros(resultado.registros);
+  const resultado = accion('eliminar hábito', () => {
+    const borrado = eliminarHabito(habitos, leerRegistros(), habitoId);
+    guardar('habitos', guardarHabitos, borrado.habitos);
+    guardar('registros', guardarRegistros, borrado.registros);
+    return borrado;
+  });
   renderizar();
   anunciar(`Hábito «${nombre}» eliminado.`);
+  incrementar('habitos_eliminados_total');
   if (conTeclado) {
     const vecino = resultado.habitos[Math.min(indice, resultado.habitos.length - 1)];
     if (vecino) enfocarEnItem(vecino.id, 'habit-delete');
@@ -274,6 +318,8 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ─── Arranque ──────────────────────────────────────────────────────────────────────────────
+
+montarVisor({ contenedor: ui.zonaVisor, boton: ui.verObservabilidad });
 
 const sesion = sesionActual();
 if (sesion) {

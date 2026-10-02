@@ -20,6 +20,10 @@
     "carga:jhm": "node scripts/carga.mjs tests/carga/jhm-prueba.js",
     "sonar:levantar": "docker compose -f infra/sonarqube/docker-compose.yml up -d",
     "sonar:apagar": "docker compose -f infra/sonarqube/docker-compose.yml down",
+    "monitoreo:levantar": "docker compose -f infra/monitoreo/docker-compose.yml up -d",
+    "monitoreo:apagar": "docker compose -f infra/monitoreo/docker-compose.yml down",
+    "monitoreo:estado": "docker compose -f infra/monitoreo/docker-compose.yml ps",
+    "monitoreo:validar": "node scripts/monitoreo-validar.mjs",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -1,0 +1,14 @@
+# Carga los tableros versionados en el repositorio (spec 005).
+apiVersion: 1
+
+providers:
+  - name: Hábitos Tracker
+    orgId: 1
+    folder: Hábitos Tracker
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/tableros
+      foldersFromFilesStructure: false
