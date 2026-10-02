@@ -67,6 +67,10 @@ jobs:
           node-version: 22
 
       - name: Servir el panel
+        env:
+          # Por defecto el servidor escucha solo en 127.0.0.1 y el contenedor de blackbox no lo
+          # alcanzaría: tiene que escuchar también en la interfaz del puente de Docker.
+          HOST: 0.0.0.0
         run: |
           node scripts/serve.mjs &
           for i in $(seq 1 20); do
