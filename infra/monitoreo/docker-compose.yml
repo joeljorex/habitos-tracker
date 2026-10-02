@@ -35,7 +35,7 @@ services:
       retries: 10
 
   alertmanager:
-    image: prom/alertmanager:v0.28.0
+    image: prom/alertmanager:v0.34.1
     container_name: habitos-alertmanager
     command:
       - --config.file=/etc/alertmanager/alertmanager.yml
