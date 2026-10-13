@@ -28,7 +28,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0",
+    "@playwright/test": "1.64.0",
     "driver.js": "1.8.0",
     "husky": "^9.1.7"
   }
