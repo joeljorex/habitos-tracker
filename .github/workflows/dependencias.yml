@@ -39,7 +39,7 @@ jobs:
       - name: Analizar el candado de dependencias
         id: analisis
         continue-on-error: true # el reporte se publica aunque haya hallazgos
-        uses: google/osv-scanner-action/osv-scanner-action@v2.6.0
+        uses: google/osv-scanner-action/osv-scanner-action@v2.7.0
         with:
           scan-args: |-
             --format=sarif
